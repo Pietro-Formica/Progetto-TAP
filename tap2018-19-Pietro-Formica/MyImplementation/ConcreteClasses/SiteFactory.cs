@@ -23,7 +23,7 @@ namespace MyImplementation.ConcreteClasses
 
         public void Setup(string connectionString)
         {
-            if(connectionString is null)
+            if(string.IsNullOrEmpty(connectionString))
                 throw new ArgumentNullException();
             try
             {
