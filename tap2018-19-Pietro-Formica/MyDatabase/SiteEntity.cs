@@ -12,14 +12,7 @@ namespace MyDatabase
 {
     class SiteEntity : IEntity<string>
     {
-        public SiteEntity([Named("SiteEntity")]string name, int timezone, int sessionExpirationTimeInSeconds, double minimumBidIncrement)
-        {
-            Id = name;
-            Timezone = timezone;
-            SessionExpirationInSeconds = sessionExpirationTimeInSeconds;
-            MinimumBidIncrement = minimumBidIncrement;
-        }
-
+        [Named("SiteEntity")]
         public string Id { get; set; }
         public int Timezone { get; set; }
         public int SessionExpirationInSeconds { get; set; }

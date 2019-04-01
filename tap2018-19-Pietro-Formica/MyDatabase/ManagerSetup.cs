@@ -18,19 +18,7 @@ namespace MyDatabase
 
         public void SetStrategy() => Database.SetInitializer(_strategy);
         public void Initialize(string connectionString) => _strategy.InitializeDatabase(new MyBdContext(connectionString));
-        public bool CheckConnectionString(string connectionString) 
-        {
-            try
-            {
-                var sqlConnectionStringBuilder = new SqlConnectionStringBuilder(connectionString);
-                return true;
-            }
-            catch (Exception )
-            {
-                return false;
-            }
-            
-        }
+
     }
 
     class MyBdContext : DbContext
@@ -46,6 +34,7 @@ namespace MyDatabase
         public override void Load()
         {
             Bind<IManagerSetup>().To<ManagerSetup>().InSingletonScope();
+            Bind<IEntity<string>>().To<SiteEntity>().Named("SiteEntity");
         }
     }
 }
