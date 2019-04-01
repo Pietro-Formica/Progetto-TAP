@@ -4,5 +4,6 @@
     {
         void SetStrategy();
         void Initialize(string connectionString);
+        bool CheckConnectionString(string connectionString);
     }
 }

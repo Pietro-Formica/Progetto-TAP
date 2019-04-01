@@ -30,6 +30,8 @@ namespace MyImplementation.ConcreteClasses
                 var kernel = new StandardKernel();
                 kernel.Load(Configuration.ImplementationAssembly);
                 var managerSetup = kernel.Get<IManagerSetup>();
+                if(! managerSetup.CheckConnectionString(connectionString))
+                    throw new UnavailableDbException();
                 managerSetup.SetStrategy();
                 managerSetup.Initialize(connectionString);
             }
