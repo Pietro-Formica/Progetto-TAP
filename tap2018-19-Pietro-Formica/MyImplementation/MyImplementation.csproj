@@ -83,6 +83,7 @@
   <ItemGroup>
     <Compile Include="Bindings\InjectonModule.cs" />
     <Compile Include="ConcreteClasses\SiteFactory.cs" />
+    <Compile Include="ConcreteClasses\User.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

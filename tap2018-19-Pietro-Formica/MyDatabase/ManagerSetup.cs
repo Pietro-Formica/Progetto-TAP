@@ -27,6 +27,7 @@ namespace MyDatabase
         {
             
         }
+        public DbSet<SiteEntity> SiteEntities{ get; set; }
     }
 
     public class NinjectModuleBd : NinjectModule
@@ -34,7 +35,8 @@ namespace MyDatabase
         public override void Load()
         {
             Bind<IManagerSetup>().To<ManagerSetup>().InSingletonScope();
-            Bind<IEntity<string>>().To<SiteEntity>().Named("SiteEntity");
+            Bind<IEntity<string>>().To<SiteEntity>();
+            Bind<IRepository<IEntity<string>, string>>().To<ManagerEntitySite>();
         }
     }
 }

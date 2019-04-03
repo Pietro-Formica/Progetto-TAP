@@ -55,14 +55,28 @@ namespace MyImplementation.ConcreteClasses
             {
                 var kernel = new StandardKernel();
                 kernel.Load(Configuration.ImplementationAssembly);
-                var siteEntity = kernel.Get<IEntity<string>>("SiteEntity");
                 CheckName(name);
                 CheckTimezone(timezone);
                 CheckSessionExpirationTimeInSeconds(sessionExpirationTimeInSeconds);
                 CheckMinimumBidIncrement(minimumBidIncrement);
-                /*   var managerSetup = kernel.Get<IRepository<IEntity<>, string>>();
-                   managerSetup.SetStrategy();
-                   managerSetup.Initialize(connectionString);*/
+                var siteEntity = kernel.Get<IEntity<string>>(new ConstructorArgument("name", name),
+                    new ConstructorArgument("timezone", timezone),
+                    new ConstructorArgument("sessionExpirationTimeInSeconds", sessionExpirationTimeInSeconds),
+                    new ConstructorArgument("minimumBidIncrement", minimumBidIncrement));
+                var managerSiteEntity =
+                    kernel.Get<IRepository<IEntity<string>, string>>(new ConstructorArgument("connectionString",
+                        connectionString));
+                managerSiteEntity.Add(siteEntity);
+
+
+            }
+            catch (NameAlreadyInUseException)
+            {
+                throw new NameAlreadyInUseException("lazzo");
+            }
+            catch (UnavailableDbException)
+            {
+                throw new UnavailableDbException();
             }
             catch (ArgumentOutOfRangeException)
             {
