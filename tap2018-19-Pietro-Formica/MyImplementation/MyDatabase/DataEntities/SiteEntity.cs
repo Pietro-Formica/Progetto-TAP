@@ -1,28 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity.Core.Objects.DataClasses;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ninject;
-using TAP2018_19.AuctionSite.Database.Interface;
+﻿using System.ComponentModel.DataAnnotations;
+using MyImplementation.MyDatabase.Interfaces;
+using TAP2018_19.AuctionSite.Interfaces;
 
-
-namespace MyDatabase
+namespace MyImplementation.MyDatabase.DataEntities
 {
-    class SiteEntity : IEntity<string>
+    public class SiteEntity : IEntity
     {
         public SiteEntity(string name, int timezone, int sessionExpirationTimeInSeconds, double minimumBidIncrement)
         {
-            Id = name;
+            Name = name;
             Timezone = timezone;
             SessionExpirationInSeconds = sessionExpirationTimeInSeconds;
             MinimumBidIncrement = minimumBidIncrement;
         }
-        public SiteEntity() { }
 
+        public SiteEntity()
+        {
 
-        public string Id { get; set; }
+        }
+        [MaxLength(DomainConstraints.MaxSiteName), MinLength(DomainConstraints.MinSiteName)]
+        public string Name { get; set; }
         public int Timezone { get; set; }
         public int SessionExpirationInSeconds { get; set; }
         public double MinimumBidIncrement { get; set; }

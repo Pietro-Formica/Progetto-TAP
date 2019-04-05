@@ -1,6 +1,9 @@
 ﻿using MyImplementation.ConcreteClasses;
+using MyImplementation.MyDatabase.DataEntities;
+using MyImplementation.MyDatabase.Implements;
 using Ninject.Modules;
 using TAP2018_19.AuctionSite.Interfaces;
+
 
 namespace MyImplementation.Bindings
 {

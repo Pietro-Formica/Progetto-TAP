@@ -1,4 +1,4 @@
-﻿namespace TAP2018_19.AuctionSite.Database.Interface
+﻿namespace MyImplementation.MyDatabase.Interfaces
 {
     public interface IManagerSetup
     {

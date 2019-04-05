@@ -4,11 +4,14 @@ using System.Configuration;
 using System.Data.Entity;
 using System.Data.Entity.Core.Objects.DataClasses;
 using System.Diagnostics;
+using MyImplementation.MyDatabase.DataEntities;
+using MyImplementation.MyDatabase.Implements;
+using MyImplementation.MyDatabase.Interfaces;
 using Ninject;
 using Ninject.Parameters;
 using TAP2018_19.AlarmClock.Interfaces;
-using TAP2018_19.AuctionSite.Database.Interface;
 using TAP2018_19.AuctionSite.Interfaces;
+using IManagerSetup = MyImplementation.MyDatabase.Interfaces.IManagerSetup;
 using StringValidator = System.Configuration.StringValidator;
 
 
@@ -17,10 +20,12 @@ namespace MyImplementation.ConcreteClasses
 
     public class SiteFactory : ISiteFactory
     {
-        internal static class Configuration
+        private readonly IEntityShooter<SiteEntity> _entityShooter;
+        private readonly IManagerSetup _managerSetup;
+        public SiteFactory()
         {
-            internal const string ImplementationAssembly =
-                @"..\..\..\MyDatabase\bin\Debug\MyDatabase.dll";
+            _managerSetup = new ManagerSetup();
+            _entityShooter = new ManagerEntitySite();
         }
 
         public void Setup(string connectionString)
@@ -29,11 +34,8 @@ namespace MyImplementation.ConcreteClasses
                 throw new ArgumentNullException();
             try
             {
-                var kernel = new StandardKernel();
-                kernel.Load(Configuration.ImplementationAssembly);
-                var managerSetup = kernel.Get<IManagerSetup>();
-                managerSetup.SetStrategy();
-                managerSetup.Initialize(connectionString);
+                _managerSetup.SetStrategy();
+                _managerSetup.Initialize(connectionString);
             }
             catch
             {
@@ -53,22 +55,13 @@ namespace MyImplementation.ConcreteClasses
                 throw new ArgumentNullException();
             try
             {
-                var kernel = new StandardKernel();
-                kernel.Load(Configuration.ImplementationAssembly);
+                _entityShooter.ControlConnectionString(connectionString);
                 CheckName(name);
                 CheckTimezone(timezone);
                 CheckSessionExpirationTimeInSeconds(sessionExpirationTimeInSeconds);
                 CheckMinimumBidIncrement(minimumBidIncrement);
-                var siteEntity = kernel.Get<IEntity<string>>(new ConstructorArgument("name", name),
-                    new ConstructorArgument("timezone", timezone),
-                    new ConstructorArgument("sessionExpirationTimeInSeconds", sessionExpirationTimeInSeconds),
-                    new ConstructorArgument("minimumBidIncrement", minimumBidIncrement));
-                var managerSiteEntity =
-                    kernel.Get<IRepository<IEntity<string>, string>>(new ConstructorArgument("connectionString",
-                        connectionString));
-                managerSiteEntity.Add(siteEntity);
-
-
+                var siteEntity = new SiteEntity(name , timezone, sessionExpirationTimeInSeconds, minimumBidIncrement);
+                _entityShooter.Add(siteEntity);              
             }
             catch (NameAlreadyInUseException)
             {
