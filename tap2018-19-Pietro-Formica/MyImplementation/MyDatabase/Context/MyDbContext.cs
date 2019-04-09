@@ -1,6 +1,5 @@
 ﻿using System.Data.Entity;
 using MyImplementation.MyDatabase.DataEntities;
-using TAP2018_19.AuctionSite.Interfaces;
 
 namespace MyImplementation.MyDatabase.Context
 {
@@ -12,12 +11,18 @@ namespace MyImplementation.MyDatabase.Context
 
         }
         public DbSet<SiteEntity> SiteEntities { get; set; }
+        public DbSet<UserEntity> UserEntities { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<SiteEntity>()
-                        .HasKey(x => x.Name);
+                .HasKey(x => x.Name);
 
+            modelBuilder.Entity<UserEntity>()
+                .HasKey(x => x.Username);
+
+            modelBuilder.Entity<SiteEntity>()
+                .HasMany(x => x.Users);
 
 
         }

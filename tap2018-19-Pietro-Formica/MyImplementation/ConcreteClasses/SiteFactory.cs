@@ -1,18 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data.Entity;
-using System.Data.Entity.Core.Objects.DataClasses;
-using System.Diagnostics;
 using MyImplementation.MyDatabase.DataEntities;
 using MyImplementation.MyDatabase.Implements;
-using MyImplementation.MyDatabase.Interfaces;
-using Ninject;
-using Ninject.Parameters;
+using MyImplementation.ValidateArguments;
 using TAP2018_19.AlarmClock.Interfaces;
 using TAP2018_19.AuctionSite.Interfaces;
-using IManagerSetup = MyImplementation.MyDatabase.Interfaces.IManagerSetup;
-using StringValidator = System.Configuration.StringValidator;
+
 
 
 namespace MyImplementation.ConcreteClasses
@@ -20,8 +13,8 @@ namespace MyImplementation.ConcreteClasses
 
     public class SiteFactory : ISiteFactory
     {
-        private readonly IEntityShooter<SiteEntity> _entityShooter;
-        private readonly IManagerSetup _managerSetup;
+        private readonly ManagerEntitySite _entityShooter;
+        private readonly ManagerSetup _managerSetup;
         public SiteFactory()
         {
             _managerSetup = new ManagerSetup();
@@ -36,6 +29,7 @@ namespace MyImplementation.ConcreteClasses
             {
                 _managerSetup.SetStrategy();
                 _managerSetup.Initialize(connectionString);
+               
             }
             catch
             {
@@ -45,94 +39,74 @@ namespace MyImplementation.ConcreteClasses
 
         public IEnumerable<string> GetSiteNames(string connectionString)
         {
+            if(connectionString is null)
+                throw new ArgumentNullException();
 
-            throw new NotImplementedException();
+           _entityShooter.ControlConnectionString(connectionString);
+           IEnumerable<string> names = _entityShooter.GetSiteNames(connectionString);
+
+           return names;
+
+
+
+
         }
 
         public void CreateSiteOnDb(string connectionString, string name, int timezone, int sessionExpirationTimeInSeconds,double minimumBidIncrement)
         {
-            if (connectionString is null || name is null)
+            if (connectionString is null)
                 throw new ArgumentNullException();
-            try
-            {
-                _entityShooter.ControlConnectionString(connectionString);
-                CheckName(name);
-                CheckTimezone(timezone);
-                CheckSessionExpirationTimeInSeconds(sessionExpirationTimeInSeconds);
-                CheckMinimumBidIncrement(minimumBidIncrement);
-                var siteEntity = new SiteEntity(name , timezone, sessionExpirationTimeInSeconds, minimumBidIncrement);
-                _entityShooter.Add(siteEntity);              
-            }
-            catch (NameAlreadyInUseException)
-            {
-                throw new NameAlreadyInUseException("lazzo");
-            }
-            catch (UnavailableDbException)
-            {
-                throw new UnavailableDbException();
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-            catch (ArgumentException)
-            {
-                throw new ArgumentException();
-            }
-            
 
+             _entityShooter.ControlConnectionString(connectionString);
+             var siteEntity = new SiteEntity(name , timezone, sessionExpirationTimeInSeconds, minimumBidIncrement);
+             _entityShooter.Add(siteEntity);                     
         }
 
         public ISite LoadSite(string connectionString, string name, IAlarmClock alarmClock)
         {
-            throw new NotImplementedException();
+            if (connectionString is null)
+                throw new ArgumentNullException();
+
+            _entityShooter.ControlConnectionString(connectionString);
+            Control.CheckName(DomainConstraints.MaxSiteName, DomainConstraints.MinSiteName, name);
+            Control.CheckAlarmClock(alarmClock);
+            var siteEntity = _entityShooter.FindByKey(name);
+            if(siteEntity is null)
+                throw new InexistentNameException(name);
+
+            return WrapSiteEntity(siteEntity, alarmClock);
+
         }
 
         public int GetTheTimezoneOf(string connectionString, string name)
         {
-            throw new NotImplementedException();
+            if(connectionString is null)
+                throw new ArgumentNullException();
+            Control.CheckName(DomainConstraints.MaxSiteName, DomainConstraints.MinSiteName, name);
+            var siteEntity = _entityShooter.FindByKey(name);
+            if (siteEntity is null)
+                throw new InexistentNameException(name);
+
+            return siteEntity.Timezone;
+
         }
 
-        private void CheckTimezone(int timezone)
+        private ISite WrapSiteEntity( SiteEntity entity, IAlarmClock alarmClock)
         {
-            var timezoneValidate = new IntegerValidator(DomainConstraints.MinTimeZone,DomainConstraints.MaxTimeZone,false);
-            try
+            if (alarmClock.Timezone == entity.Timezone)
             {
-                timezoneValidate.Validate(timezone);
+                ISite site = new Site(entity.Name, entity.Timezone, entity.SessionExpirationInSeconds, entity.MinimumBidIncrement);
+                return site;
             }
-            catch (ArgumentException)
-            {
-              throw new ArgumentOutOfRangeException();
-            }
+            throw new ArgumentException();
 
         }
 
-        private void CheckSessionExpirationTimeInSeconds(int sessionExpirationTimeInSeconds)
-        {
-            if(sessionExpirationTimeInSeconds < 0)
-                throw new ArgumentOutOfRangeException();
-  
-        }
 
-        private void CheckMinimumBidIncrement(double minimumBidIncrement)
-        {
-            if(minimumBidIncrement < 0)
-                throw new ArgumentOutOfRangeException();
-        }
 
-        private void CheckName(string name)
-        {
-            var nameValidate = new StringValidator(DomainConstraints.MinSiteName,DomainConstraints.MaxSiteName);
-            try
-            {
-                nameValidate.Validate(name);
-            }
-            catch (ArgumentException)
-            {
-                throw new ArgumentException();
-            }
 
-        }
+
+
     }
 
 }

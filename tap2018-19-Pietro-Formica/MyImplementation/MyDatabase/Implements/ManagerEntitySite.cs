@@ -1,15 +1,18 @@
-﻿using System.Data.Entity;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Entity;
 using System.Linq;
 using MyImplementation.MyDatabase.Context;
 using MyImplementation.MyDatabase.DataEntities;
-using MyImplementation.MyDatabase.Interfaces;
 using TAP2018_19.AuctionSite.Interfaces;
 
 namespace MyImplementation.MyDatabase.Implements
 {
-    class ManagerEntitySite : IEntityShooter<SiteEntity>
+    class ManagerEntitySite
     {
         private string _connectionString;
+
         public void ControlConnectionString(string connectionString)
         {
             if (!Database.Exists(connectionString))
@@ -18,23 +21,36 @@ namespace MyImplementation.MyDatabase.Implements
 
         }
 
-        public void Add( SiteEntity entity)
+        public void Add(SiteEntity entity)
         {
             using (var contextDb = new MyDBdContext(_connectionString))
             {
-                var blogs = from b in contextDb.SiteEntities
-                    where b.Name == entity.Name
-                select b;
-                var prova = blogs.ToArray();
-
-                if(prova.Length == 1)
-                    throw new NameAlreadyInUseException("cazzo");
+                var entityPresent = FindByKey(entity.Name);
+                if (entityPresent != null)
+                    throw new NameAlreadyInUseException(entity.Name);
                 contextDb.SiteEntities.Add(entity);
                 contextDb.SaveChanges();
-
             }
-              
+        }
+        public SiteEntity FindByKey(string key)
+        {
+            using (var context = new MyDBdContext(_connectionString))
+            {
+                return context.SiteEntities.Find(key);
+            }
         }
 
+        public IEnumerable<string> GetSiteNames(string connectionString)
+        {
+            using (var contex = new MyDBdContext(connectionString))
+            {
+                //var suca = contex.SiteEntities.Select(s => s.Name).ToList();
+                //var usr = contex.UserEntities.Single(u => u.Username == "Pinco");
+                var query = from tmp in contex.SiteEntities
+                    select tmp.Name;
+                return query.ToList();
+            }
+        }
+        
     }
 }

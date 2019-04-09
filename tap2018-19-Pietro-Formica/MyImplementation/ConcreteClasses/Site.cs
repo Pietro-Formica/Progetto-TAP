@@ -1,25 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data.Entity;
+using MyImplementation.MyDatabase.Context;
+using MyImplementation.MyDatabase.Implements;
+using MyImplementation.ValidateArguments;
 using TAP2018_19.AuctionSite.Interfaces;
 
 namespace MyImplementation.ConcreteClasses
 {
      public class Site : ISite
-    {
+     {
         public Site(string name, int timezone, int sessionExpirationTimeInSeconds, double minimumBidIncrement)
         {
             Name = name;
             Timezone = timezone;
             SessionExpirationInSeconds = sessionExpirationTimeInSeconds;
             MinimumBidIncrement = minimumBidIncrement;
+         
         }
             
         public IEnumerable<IUser> GetUsers()
         {
+            var prova = ManagerSetup.ConnectionString;
+            if(prova is null)
+                throw new ArgumentNullException("sono io");
             throw new NotImplementedException();
         }
 
@@ -45,7 +49,10 @@ namespace MyImplementation.ConcreteClasses
 
         public void CreateUser(string username, string password)
         {
-            throw new NotImplementedException();
+           Control.CheckName(DomainConstraints.MaxUserName, DomainConstraints.MinUserName, username);
+           Control.CheckPassword(password);
+
+
         }
 
         public void Delete()
@@ -61,5 +68,6 @@ namespace MyImplementation.ConcreteClasses
         public int Timezone { get; }
         public int SessionExpirationInSeconds { get; }
         public double MinimumBidIncrement { get; }
+
     }
 }
