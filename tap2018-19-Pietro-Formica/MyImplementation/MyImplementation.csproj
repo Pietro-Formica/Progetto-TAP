@@ -89,7 +89,9 @@
     <Compile Include="ConcreteClasses\Site.cs" />
     <Compile Include="ConcreteClasses\SiteFactory.cs" />
     <Compile Include="ConcreteClasses\User.cs" />
+    <Compile Include="MyDatabase\DataEntities\SessionEntity.cs" />
     <Compile Include="MyDatabase\DataEntities\UserEntity.cs" />
+    <Compile Include="MyDatabase\Implements\ManagerSessionEntity.cs" />
     <Compile Include="MyDatabase\Implements\ManagerUser.cs" />
     <Compile Include="ValidateArguments\Control.cs" />
     <Compile Include="MyDatabase\Implements\ManagerEntitySite.cs" />

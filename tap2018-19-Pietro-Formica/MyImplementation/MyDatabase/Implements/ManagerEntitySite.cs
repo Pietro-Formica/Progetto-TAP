@@ -1,7 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using MyImplementation.MyDatabase.Context;
 using MyImplementation.MyDatabase.DataEntities;
@@ -25,29 +27,35 @@ namespace MyImplementation.MyDatabase.Implements
         {
             using (var contextDb = new MyDBdContext(_connectionString))
             {
-                var entityPresent = FindByKey(entity.Name);
-                if (entityPresent != null)
-                    throw new NameAlreadyInUseException(entity.Name);
                 contextDb.SiteEntities.Add(entity);
-                contextDb.SaveChanges();
+                try
+                {
+                    contextDb.SaveChanges();
+                }
+                catch (DbUpdateException)//da rivedere lol
+                {
+
+                    throw new NameAlreadyInUseException(entity.Id);
+                }
+
             }
         }
-        public SiteEntity FindByKey(string key)
-        {
-            using (var context = new MyDBdContext(_connectionString))
-            {
-                return context.SiteEntities.Find(key);
-            }
-        }
+          public SiteEntity FindByKey(string key)
+          {
+               using (var context = new MyDBdContext(_connectionString))
+               {
+                   return context.SiteEntities.Find(key);
+               }
+
+          }
 
         public IEnumerable<string> GetSiteNames(string connectionString)
         {
-            using (var contex = new MyDBdContext(connectionString))
+            using (var context = new MyDBdContext(connectionString))
             {
-                //var suca = contex.SiteEntities.Select(s => s.Name).ToList();
-                //var usr = contex.UserEntities.Single(u => u.Username == "Pinco");
-                var query = from tmp in contex.SiteEntities
-                    select tmp.Name;
+
+                var query = from tmp in context.SiteEntities
+                    select tmp.Id;
                 return query.ToList();
             }
         }

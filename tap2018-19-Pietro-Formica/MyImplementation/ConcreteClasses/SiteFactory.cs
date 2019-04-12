@@ -70,6 +70,7 @@ namespace MyImplementation.ConcreteClasses
             _entityShooter.ControlConnectionString(connectionString);
             Control.CheckName(DomainConstraints.MaxSiteName, DomainConstraints.MinSiteName, name);
             Control.CheckAlarmClock(alarmClock);
+            alarmClock.InstantiateAlarm(5 * 60 * 1000);
             var siteEntity = _entityShooter.FindByKey(name);
             if(siteEntity is null)
                 throw new InexistentNameException(name);
@@ -82,6 +83,7 @@ namespace MyImplementation.ConcreteClasses
         {
             if(connectionString is null)
                 throw new ArgumentNullException();
+            _entityShooter.ControlConnectionString(connectionString);
             Control.CheckName(DomainConstraints.MaxSiteName, DomainConstraints.MinSiteName, name);
             var siteEntity = _entityShooter.FindByKey(name);
             if (siteEntity is null)
@@ -95,7 +97,7 @@ namespace MyImplementation.ConcreteClasses
         {
             if (alarmClock.Timezone == entity.Timezone)
             {
-                ISite site = new Site(entity.Name, entity.Timezone, entity.SessionExpirationInSeconds, entity.MinimumBidIncrement);
+                ISite site = new Site(entity.Id, entity.Timezone, entity.SessionExpirationInSeconds, entity.MinimumBidIncrement);
                 return site;
             }
             throw new ArgumentException();

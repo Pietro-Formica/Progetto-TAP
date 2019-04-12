@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using MyImplementation.MyDatabase.Context;
+using MyImplementation.MyDatabase.DataEntities;
 using MyImplementation.MyDatabase.Implements;
 using MyImplementation.ValidateArguments;
 using TAP2018_19.AuctionSite.Interfaces;
@@ -39,7 +41,10 @@ namespace MyImplementation.ConcreteClasses
 
         public ISession Login(string username, string password)
         {
+            Control.CheckName(DomainConstraints.MaxUserName, DomainConstraints.MinUserName,username);
+            Control.CheckPassword(password);
             throw new NotImplementedException();
+ 
         }
 
         public ISession GetSession(string sessionId)
@@ -51,6 +56,9 @@ namespace MyImplementation.ConcreteClasses
         {
            Control.CheckName(DomainConstraints.MaxUserName, DomainConstraints.MinUserName, username);
            Control.CheckPassword(password);
+           UserEntity user = new UserEntity(username, password,Name);
+           var manager = new ManagerUser();
+           manager.AddUserOnDb(Name, user);
 
 
         }
