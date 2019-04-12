@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.Data.Entity;
 using TAP2018_19.AlarmClock.Interfaces;
 using TAP2018_19.AuctionSite.Interfaces;
 
@@ -63,6 +64,15 @@ namespace MyImplementation.ValidateArguments
             CheckTimezone(timezone);
             CheckSessionExpirationTimeInSeconds(sessionExpirationTimeInSeconds);
             CheckMinimumBidIncrement(minimumBidIncrement);
+        }
+
+        public static void CheckConnectionString(string connectionString)
+        {
+            if (connectionString is null)
+                throw new ArgumentNullException();
+
+            if (!Database.Exists(connectionString))
+                throw new UnavailableDbException();
         }
     }
 }

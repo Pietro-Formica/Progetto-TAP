@@ -1,13 +1,23 @@
 ﻿using System;
+using TAP2018_19.AlarmClock.Interfaces;
 using TAP2018_19.AuctionSite.Interfaces;
 
 namespace MyImplementation.ConcreteClasses
 {
     class Session : ISession
     {
+        private readonly IAlarmClock _alarmClock;
+        public Session(string id, DateTime validUntil, IUser user, IAlarmClock alarmClock)
+        {
+            Id = id;
+            ValidUntil = validUntil;
+            User = user;
+            _alarmClock = alarmClock;
+        }
+
         public bool IsValid()
         {
-            throw new NotImplementedException();
+            return ValidUntil > _alarmClock.Now;
         }
 
         public void Logout()

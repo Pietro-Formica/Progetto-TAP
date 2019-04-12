@@ -6,7 +6,10 @@ namespace MyImplementation.MyDatabase.DataEntities
 {
     public class SiteEntity
     {
-        public SiteEntity() { }
+        public SiteEntity()
+        {
+            
+        }
         public SiteEntity(string id, int timezone, int sessionExpirationTimeInSeconds, double minimumBidIncrement)
         {
             Control.CheckArgumentSiteEntity(id, timezone, sessionExpirationTimeInSeconds, minimumBidIncrement);

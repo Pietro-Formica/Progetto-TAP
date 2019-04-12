@@ -6,6 +6,10 @@ namespace MyImplementation.ConcreteClasses
 {
     class User : IUser
     {
+        public User(string username)
+        {
+            Username = username;
+        }
         public IEnumerable<IAuction> WonAuctions()
         {
             throw new NotImplementedException();

@@ -9,6 +9,7 @@ namespace MyImplementation.MyDatabase.DataEntities
 {
     public class SessionEntity
     {
+        public SessionEntity() { }
         public SessionEntity(string id, DateTime validUntil, string siteName,UserEntity user)
         {
             Id = id;
