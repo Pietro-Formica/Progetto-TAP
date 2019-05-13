@@ -6,12 +6,11 @@ using MyImplementation.MyDatabase.DataEntities;
 
 namespace MyImplementation.MyDatabase.Context
 {
+
     class MyDBdContext : DbContext
     {
         public MyDBdContext(string connectionString) : base(connectionString)
         {
-
-
         }
 
         public DbSet<SiteEntity> SiteEntities { get; set; }
@@ -25,28 +24,15 @@ namespace MyImplementation.MyDatabase.Context
             modelBuilder.Entity<SessionEntity>().ToTable("Sessions");
 
             modelBuilder.Entity<SiteEntity>().HasKey(x => x.Id);
-            modelBuilder.Entity<UserEntity>().HasKey(x => new {x.Id,x.SiteId});
+            modelBuilder.Entity<UserEntity>().HasKey(x => new {x.Id, x.SiteId});
             modelBuilder.Entity<SessionEntity>().HasKey(x => x.Id);
 
-            modelBuilder.Entity<UserEntity>()
-                .HasRequired(s => s.Site)
-                .WithMany(x => x.Users)
-                .HasForeignKey(x => x.SiteId);
+            modelBuilder.Entity<UserEntity>().HasRequired(s => s.Site).WithMany(x => x.Users).HasForeignKey(k => k.SiteId);
 
-            modelBuilder.Entity<SessionEntity>()
-                .HasRequired(x => x.Site)
-                .WithMany(x => x.SessionEntities)
-                .HasForeignKey(x => x.SiteId);
+            modelBuilder.Entity<SessionEntity>().HasRequired(x => x.Site).WithMany(x => x.SessionEntities);
 
-            modelBuilder.Entity<SessionEntity>()
-                .HasRequired(x => x.User)
-                .WithOptional(x => x.Session);
-                
-;
-
-
+            modelBuilder.Entity<SessionEntity>().HasRequired(x => x.EntityUser).WithOptional(x => x.Session);
         }
     }
-
 
 }

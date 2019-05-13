@@ -1,23 +1,29 @@
 ﻿using System;
+using System.Linq;
+using MyImplementation.MyDatabase.DataEntities;
 using TAP2018_19.AlarmClock.Interfaces;
 using TAP2018_19.AuctionSite.Interfaces;
 
 namespace MyImplementation.ConcreteClasses
 {
-    class Session : ISession
+    class Session : ISession, IEquatable<Session>
     {
-        private readonly IAlarmClock _alarmClock;
-        public Session(string id, DateTime validUntil, IUser user, IAlarmClock alarmClock)
+        public Session(string id, DateTime validUntil, IUser user)
         {
             Id = id;
             ValidUntil = validUntil;
             User = user;
-            _alarmClock = alarmClock;
+        }
+
+
+        public override int GetHashCode()
+        {
+            return (Id != null ? Id.GetHashCode() : 0);
         }
 
         public bool IsValid()
         {
-            return ValidUntil > _alarmClock.Now;
+            throw new NotImplementedException();
         }
 
         public void Logout()
@@ -28,6 +34,26 @@ namespace MyImplementation.ConcreteClasses
         public IAuction CreateAuction(string description, DateTime endsOn, double startingPrice)
         {
             throw new NotImplementedException();
+        }
+        public bool Equals(Session other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return string.Equals(Id, other.Id);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Session)obj);
+        }
+        public static implicit operator Session(SessionEntity sessionEntity)
+        {
+            User user = sessionEntity.EntityUser;
+            var session = new Session(sessionEntity.Id, sessionEntity.ValidUntil,user);
+            return session;
         }
 
         public string Id { get; }

@@ -42,8 +42,11 @@ namespace TAP2018_19.AuctionSite.Interfaces.Tests
 #pragma warning restore CS0246 // Il nome di tipo o di spazio dei nomi 'TestAttribute' non è stato trovato. Probabilmente manca una direttiva using o un riferimento all'assembly.
         public void GetSiteNames_BadConnectionString_Throws()
         {
+
             Assert.That(
+
                 () => GetSiteFactory().GetSiteNames(@"Data Source=puffo;Initial Catalog=blu;Integrated Security=True;"),
+
                 Throws.TypeOf<UnavailableDbException>());
         }
 

@@ -1,53 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Net.Sockets;
 using Castle.Core.Internal;
+using MyImplementation.Builders;
+using MyImplementation.Extensions;
 using MyImplementation.MyDatabase.Context;
 using MyImplementation.MyDatabase.DataEntities;
 using MyImplementation.ValidateArguments;
+using Ninject.Infrastructure.Language;
 using TAP2018_19.AlarmClock.Interfaces;
 using TAP2018_19.AuctionSite.Interfaces;
 
 namespace MyImplementation.ConcreteClasses
 {
-     public class Site : ISite
+     public class Site : ISite, IEquatable<Site>
      {
          private readonly string _connectionString;
          private readonly IAlarmClock _alarmClock;
-        public Site(string name, int timezone, int sessionExpirationTimeInSeconds, double minimumBidIncrement, string connectionString, IAlarmClock alarmClock)
-        {
-            Name = name;
-            Timezone = timezone;
-            SessionExpirationInSeconds = sessionExpirationTimeInSeconds;
-            MinimumBidIncrement = minimumBidIncrement;
-            _connectionString = connectionString;
-            _alarmClock = alarmClock;
+         public Site(string name, int timezone, int sessionExpirationInSeconds, double minimumBidIncrement, string connectionString, IAlarmClock alarmClock)
+         {
+             Name = name;
+             Timezone = timezone;
+             SessionExpirationInSeconds = sessionExpirationInSeconds;
+             MinimumBidIncrement = minimumBidIncrement;
+             _connectionString = connectionString;
+             _alarmClock = alarmClock;
+         }
+         public IEnumerable<IUser> GetUsers()
+         {
+             throw new NotImplementedException();
         }
-            
-        public IEnumerable<IUser> GetUsers()
-        {
-            Control.CheckConnectionString(_connectionString);
-            using (var context = new MyDBdContext(_connectionString))
-            {
-                var query = from tmp in context.UserEntities
-                    where tmp.SiteId == Name
-                    select tmp.Id;
-                var entityList = query.ToList();
-                var usersList = new List<IUser>();
-                foreach (var tmp in entityList)
-                {
-                    var user = new User(tmp);
-                    usersList.Add(user);
-                }
-
-                return usersList;
-
-            }
-
-        }
-
-        public IEnumerable<ISession> GetSessions()
+         public IEnumerable<ISession> GetSessions()
         {
             throw new NotImplementedException();
         }
@@ -61,43 +47,8 @@ namespace MyImplementation.ConcreteClasses
         {
             Control.CheckName(DomainConstraints.MaxUserName, DomainConstraints.MinUserName,username);
             Control.CheckPassword(password);
-            using (var context = new MyDBdContext(_connectionString))
-            {
-                var userEntity = context.UserEntities.FirstOrDefault(u =>
-                    u.Id == username && u.Password == password && u.SiteId == Name);
-                   if (userEntity is null)
-                    return null;
-                   var sessionUser = userEntity.Session;
-                   if (sessionUser is null)
-                   {
-                        var time = _alarmClock.Now.AddSeconds(SessionExpirationInSeconds);
-                        var id = Guid.NewGuid().ToString();
-                        context.Session.Add(new SessionEntity(id, time, Name, userEntity));
-                        try
-                        {
-                            context.SaveChanges();
-                            return new Session(id, time, new User(username), _alarmClock);
+            throw new NotImplementedException();
 
-                        }
-                        catch (DbUpdateException e)
-                        {
-                            Console.WriteLine(e);
-                            throw new ArgumentNullException();
-                        }
-                   }
-                var times = _alarmClock.Now.AddSeconds(SessionExpirationInSeconds);
-                sessionUser.ValidUntil = times;
-                try
-                {
-                    context.SaveChanges();
-                    return new Session(sessionUser.Id, sessionUser.ValidUntil, new User(username), _alarmClock);
-                }
-                catch (DbUpdateException e)
-                {
-                    Console.WriteLine(e);
-                    throw new ArgumentNullException();
-                }
-            }      
         }
 
         public ISession GetSession(string sessionId)
@@ -107,21 +58,11 @@ namespace MyImplementation.ConcreteClasses
 
         public void CreateUser(string username, string password)
         {
-           Control.CheckName(DomainConstraints.MaxUserName, DomainConstraints.MinUserName, username);
-           Control.CheckPassword(password);
-           UserEntity user = new UserEntity(username, password, Name);
-           using (var contextDb = new MyDBdContext(_connectionString))
-           {
-               contextDb.UserEntities.Add(user);
-               try
-               {
-                   contextDb.SaveChanges();
-               }
-               catch (DbUpdateException)//da rivedere lol
-               {
-                   throw new NameAlreadyInUseException(user.Id);
-               }
-           }
+            UserEntityBuilder.NewBuilder(username)
+                .Password(password)
+                .SiteName(Name)
+                .Build()
+                .SaveEntityOnDb(_connectionString);                     
         }
 
         public void Delete()
@@ -133,6 +74,24 @@ namespace MyImplementation.ConcreteClasses
         {
             throw new NotImplementedException();
         }
+        public bool Equals(Site other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return string.Equals(Name, other.Name);
+        }
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Site) obj);
+        }
+        public override int GetHashCode()
+        {
+            return (Name != null ? Name.GetHashCode() : 0);
+        }
+
         public string Name { get; }
         public int Timezone { get; }
         public int SessionExpirationInSeconds { get; }

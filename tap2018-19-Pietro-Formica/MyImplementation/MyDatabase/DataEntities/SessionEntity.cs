@@ -9,20 +9,9 @@ namespace MyImplementation.MyDatabase.DataEntities
 {
     public class SessionEntity
     {
-        public SessionEntity() { }
-        public SessionEntity(string id, DateTime validUntil, string siteName,UserEntity user)
-        {
-            Id = id;
-            ValidUntil = validUntil;
-            User = user;
-            SiteId = siteName;
-
-        }
-
         public string Id { get; set; }
         public DateTime ValidUntil { get; set; }     
-        public string SiteId { get; set; }
-        public SiteEntity Site { get; set; }
-        public UserEntity User { get; set; }
+        public virtual SiteEntity Site { get; set; }
+        public virtual UserEntity EntityUser { get; set; }
     }
 }

@@ -5,6 +5,14 @@ namespace MyImplementation.ConcreteClasses
 {
     class Auction : IAuction
     {
+        public Auction(int id, IUser seller, string description, DateTime endsOn)
+        {
+            Id = id;
+            Seller = seller;
+            Description = description;
+            EndsOn = endsOn;
+        }
+
         public IUser CurrentWinner()
         {
             throw new NotImplementedException();
