@@ -88,7 +88,10 @@
     <Compile Include="ConcreteClasses\SiteFactory.cs" />
     <Compile Include="ConcreteClasses\User.cs" />
     <Compile Include="Builders\EntitySiteBuilder.cs" />
+    <Compile Include="DbInexistentNameException.cs" />
+    <Compile Include="DbInvalidOperationException.cs" />
     <Compile Include="Extensions\extension methods.cs" />
+    <Compile Include="IExceptionDb.cs" />
     <Compile Include="MyDatabase\DataEntities\SessionEntity.cs" />
     <Compile Include="MyDatabase\DataEntities\UserEntity.cs" />
     <Compile Include="ValidateArguments\Control.cs" />

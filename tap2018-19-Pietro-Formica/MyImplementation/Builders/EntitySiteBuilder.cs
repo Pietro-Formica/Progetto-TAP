@@ -13,8 +13,6 @@ namespace MyImplementation.Builders
         private int _timezone;
         private int _sessionExpirationInSeconds;
         private double _minimumBidIncrement;
-        private SiteEntity _siteEntity;
-
         private EntitySiteBuilder(string id) => _id = id;
         public static EntitySiteBuilder NewBuilder(string id) => new EntitySiteBuilder(id);
         public EntitySiteBuilder Timezone(int timezone)
@@ -32,36 +30,21 @@ namespace MyImplementation.Builders
             _minimumBidIncrement = minimumBidIncrement;
             return this;
         }
-        public EntitySiteBuilder Build()
+        public SiteEntity Build()
         {
             Control.CheckName(DomainConstraints.MaxSiteName, DomainConstraints.MinSiteName, _id);
             Control.CheckTimezone(_timezone);
             Control.CheckSessionExpirationTimeInSeconds(_sessionExpirationInSeconds);
             Control.CheckMinimumBidIncrement(_minimumBidIncrement);
-            _siteEntity = new SiteEntity
+            return new SiteEntity
             {
                 Id = _id,
                 Timezone = _timezone,
                 SessionExpirationInSeconds = _sessionExpirationInSeconds,
                 MinimumBidIncrement = _minimumBidIncrement
             };
-            return this;
+            
         }
-        public void SaveEntityOnDb(string connectionString)
-        {
-            Control.CheckConnectionString(connectionString);
-            using (var contextDb = new MyDBdContext(connectionString))
-            {
-                contextDb.SiteEntities.Add(_siteEntity);
-                try
-                {
-                    contextDb.SaveChanges();
-                }
-                catch (DbUpdateException)//da rivedere lol
-                {
-                    throw new NameAlreadyInUseException(_siteEntity.Id);
-                }
-            }
-        }
+
     }
 }

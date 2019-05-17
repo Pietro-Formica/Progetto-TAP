@@ -31,8 +31,12 @@ namespace MyImplementation.ConcreteClasses
          }
          public IEnumerable<IUser> GetUsers()
          {
-             throw new NotImplementedException();
-        }
+             var builder = UserBuilder.NewUserBuilder().SetAlarmClock(_alarmClock).SetConnectionString(_connectionString);
+             var listUsers = builder.GetUsers(Name);
+             return builder.BuildAll(listUsers);
+
+
+         }
          public IEnumerable<ISession> GetSessions()
         {
             throw new NotImplementedException();
@@ -67,7 +71,7 @@ namespace MyImplementation.ConcreteClasses
 
         public void Delete()
         {
-            throw new NotImplementedException();
+            SiteBuilder.NewSiteBuilder().SetConnectionString(_connectionString).SearchEntity(Name, new DbInvalidOperationException()).DestroyEntity();
         }
 
         public void CleanupSessions()

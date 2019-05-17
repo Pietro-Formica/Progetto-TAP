@@ -1,8 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data.Entity;
+using System.Data.Entity.Core;
 using System.Data.Entity.Infrastructure;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Castle.Core.Internal;
 using MyImplementation.Builders;
+using MyImplementation.ConcreteClasses;
 using MyImplementation.MyDatabase.Context;
 using MyImplementation.MyDatabase.DataEntities;
 using MyImplementation.ValidateArguments;
@@ -12,56 +18,105 @@ namespace MyImplementation.Extensions
 {
     public static class ExtensionMethods
     {
-        public static IEnumerable<string> GetAllSiteName(this SiteBuilder siteBuilder)
+        public static IEnumerable<SiteEntity> GetAllSiteName(this SiteBuilder siteBuilder)
         {
             if(siteBuilder.ConnectionString is null)
                 throw new ArgumentNullException();
             using (var context = new MyDBdContext(siteBuilder.ConnectionString))
             {
-                var query = from tmp in context.SiteEntities
-                    select tmp.Id;
-                foreach (var s in query.ToList()) yield return s;
+                IEnumerable<SiteEntity> siteName = context.SiteEntities.ToList();
+                return siteName;
             }
         }
-        public static SiteBuilder SearchEntity(this SiteBuilder siteBuilder, string name)
+        public static IEnumerable<UserEntity> GetUsers(this UserBuilder userBuilder, string siteName)
+        {
+            if (userBuilder.ConnectionString is null)
+                throw new ArgumentNullException();
+            using (var context = new MyDBdContext(userBuilder.ConnectionString))
+            {
+                IEnumerable<UserEntity> userEntities = context.SiteEntities.Where(s => s.Id == siteName).Select(s => s.Users).SingleOrDefault();
+                //if(userEntities.IsNullOrEmpty()) throw new InvalidOperationException("Get users by user builder");
+                return userEntities;
+
+
+            }
+        }
+        public static SiteBuilder SearchEntity(this SiteBuilder siteBuilder, string name, IExceptionDb exception)
         {
             if (siteBuilder.ConnectionString is null)
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(siteBuilder));
             Control.CheckName(DomainConstraints.MaxSiteName, DomainConstraints.MinSiteName, name);
             using (var context = new MyDBdContext(siteBuilder.ConnectionString))
             {
+                var siteEntity = context.SiteEntities.Find(name);
 
-                var siteEntity = context.SiteEntities.Find(name) ?? throw new InexistentNameException(name);
-               /* var property = siteBuilder.GetType();
-
-                property.GetProperty("Id")?.SetValue(siteBuilder, siteEntity.Id);
-                property.GetProperty("Timezone")?.SetValue(siteBuilder,siteEntity.Timezone);
-                property.GetProperty("SessionExpirationInSeconds")?.SetValue(siteBuilder, siteEntity.SessionExpirationInSeconds);
-                property.GetProperty("MinimumBidIncrement")?.SetValue(siteBuilder, siteEntity.MinimumBidIncrement);
-
-*/
-               siteBuilder.SiteEntity = siteEntity;
-
- 
-
+                if (siteEntity is null)
+                {
+                    exception.GetException();
+                }
+                siteBuilder.SiteEntity = siteEntity;
                 return siteBuilder;
             }           
         }
+        [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
         public static void SaveEntityOnDb(this UserEntity userEntity, string connectionString)
         {
             Control.CheckConnectionString(connectionString);
             using (var contextDb = new MyDBdContext(connectionString))
             {
-               // if (_userEntity is null) throw new ArgumentNullException();
-                contextDb.UserEntities.Add(userEntity);
+                
+                try
+                {
+                    contextDb.UserEntities.Add(userEntity);
+                    contextDb.SaveChanges();
+                }
+                catch (DbUpdateException exception) //da rivedere lol
+                {
+                    var exceptionEntity =(UserEntity) exception.Entries.Single().Entity;
+                    if (exceptionEntity.Id == userEntity.Id)
+                    {
+                        throw new NameAlreadyInUseException(userEntity.Id);
+                    }
+    
+                   
+                    throw new InvalidOperationException();
+                }
+            }
+        }
+        public static void SaveEntityOnDb(this SiteEntity siteEntity, string connectionString)
+        {
+            Control.CheckConnectionString(connectionString);
+            using (var contextDb = new MyDBdContext(connectionString))
+            {
+                contextDb.SiteEntities.Add(siteEntity);
                 try
                 {
                     contextDb.SaveChanges();
                 }
                 catch (DbUpdateException)//da rivedere lol
                 {
-                    throw new NameAlreadyInUseException(userEntity.Id);
+                    throw new NameAlreadyInUseException(siteEntity.Id);
                 }
+            }
+        }
+        public static void DestroyEntity(this SiteBuilder siteBuilder)
+        {
+            using (var contextDb = new MyDBdContext(siteBuilder.ConnectionString))
+            {
+                if(siteBuilder.SiteEntity is null)
+                    throw new ArgumentNullException();
+                contextDb.SiteEntities.Attach(siteBuilder.SiteEntity);
+                contextDb.SiteEntities.Remove(siteBuilder.SiteEntity);
+                try
+                {
+                    contextDb.SaveChanges();
+                }
+                catch (DbUpdateException)
+                {
+                    throw new InvalidOperationException();
+                    
+                }
+
             }
         }
     }

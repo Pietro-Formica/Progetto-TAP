@@ -17,8 +17,6 @@ namespace MyImplementation.Builders
         private string _id;
         private string _password;
         private string _siteName;
-        private UserEntity _userEntity;
-
         private UserEntityBuilder(string id) => _id = id;
         public static UserEntityBuilder NewBuilder(string id) => new UserEntityBuilder(id);
         public UserEntityBuilder Password(string password)
@@ -44,23 +42,7 @@ namespace MyImplementation.Builders
             };
             return userEntity;
         }
-/*        public void SaveEntityOnDb(string connectionString)
-        {
-            Control.CheckConnectionString(connectionString);
-            using (var contextDb = new MyDBdContext(connectionString))
-            {
-                if(_userEntity is null) throw new ArgumentNullException();
-                contextDb.UserEntities.Add(_userEntity);
-                try
-                {
-                    contextDb.SaveChanges();
-                }
-                catch (DbUpdateException)//da rivedere lol
-                {
-                    throw new NameAlreadyInUseException(_userEntity.Id);
-                }
-            }
-        }*/
+
     }
 
 }

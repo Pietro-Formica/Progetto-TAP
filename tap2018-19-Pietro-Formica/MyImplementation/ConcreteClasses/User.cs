@@ -7,7 +7,7 @@ using TAP2018_19.AuctionSite.Interfaces;
 namespace MyImplementation.ConcreteClasses
 {
 
-    class User : IUser, IEquatable<User>
+    public class User : IUser, IEquatable<User>
     {
         private readonly string _site;
         private readonly string _connectionString;

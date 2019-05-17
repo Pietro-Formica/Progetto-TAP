@@ -49,13 +49,6 @@ namespace MyImplementation.ConcreteClasses
             if (obj.GetType() != this.GetType()) return false;
             return Equals((Session)obj);
         }
-        public static implicit operator Session(SessionEntity sessionEntity)
-        {
-            User user = sessionEntity.EntityUser;
-            var session = new Session(sessionEntity.Id, sessionEntity.ValidUntil,user);
-            return session;
-        }
-
         public string Id { get; }
         public DateTime ValidUntil { get; }
         public IUser User { get; }

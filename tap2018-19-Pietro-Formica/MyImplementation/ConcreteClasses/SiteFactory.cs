@@ -30,7 +30,10 @@ namespace MyImplementation.ConcreteClasses
         }
         public IEnumerable<string> GetSiteNames(string connectionString)
         {
-            return SiteBuilder.NewSiteBuilder().SetConnectionString(connectionString).GetAllSiteName();
+            var builder = SiteBuilder.NewSiteBuilder().SetConnectionString(connectionString);
+            var list = builder.GetAllSiteName();
+            return builder.BuildAll(list);
+
 
         }
         public void CreateSiteOnDb(string connectionString, string name, int timezone, int sessionExpirationTimeInSeconds,double minimumBidIncrement)
@@ -49,7 +52,7 @@ namespace MyImplementation.ConcreteClasses
             var site = SiteBuilder.NewSiteBuilder()
                 .SetConnectionString(connectionString)
                 .SetAlarmClock(alarmClock)
-                .SearchEntity(name)
+                .SearchEntity(name,new DbInexistentNameException(name))
                 .Build();
             return site;           
         }
@@ -58,7 +61,7 @@ namespace MyImplementation.ConcreteClasses
         {
             var siteBuilder = SiteBuilder.NewSiteBuilder()
                 .SetConnectionString(connectionString)
-                .SearchEntity(name);
+                .SearchEntity(name, new DbInexistentNameException(name));
                 
             return siteBuilder.SiteEntity.Timezone;
             
