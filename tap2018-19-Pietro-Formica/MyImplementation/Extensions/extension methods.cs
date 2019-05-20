@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data.Entity;
 using System.Data.Entity.Core;
 using System.Data.Entity.Infrastructure;
+using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Castle.Core.Internal;
@@ -34,11 +35,8 @@ namespace MyImplementation.Extensions
                 throw new ArgumentNullException();
             using (var context = new MyDBdContext(userBuilder.ConnectionString))
             {
-                IEnumerable<UserEntity> userEntities = context.SiteEntities.Where(s => s.Id == siteName).Select(s => s.Users).SingleOrDefault();
-                //if(userEntities.IsNullOrEmpty()) throw new InvalidOperationException("Get users by user builder");
+                IEnumerable<UserEntity> userEntities = context.SiteEntities.Where(s => s.Id == siteName).Select(s => s.Users).Single();
                 return userEntities;
-
-
             }
         }
         public static SiteBuilder SearchEntity(this SiteBuilder siteBuilder, string name, IExceptionDb exception)
@@ -67,18 +65,18 @@ namespace MyImplementation.Extensions
                 
                 try
                 {
+
                     contextDb.UserEntities.Add(userEntity);
                     contextDb.SaveChanges();
                 }
                 catch (DbUpdateException exception) //da rivedere lol
                 {
-                    var exceptionEntity =(UserEntity) exception.Entries.Single().Entity;
-                    if (exceptionEntity.Id == userEntity.Id)
-                    {
+                    var sqlException = exception.GetBaseException() as SqlException;
+                    if (sqlException.Number == 2627)
+                    {   
                         throw new NameAlreadyInUseException(userEntity.Id);
-                    }
-    
-                   
+                        
+                    }                  
                     throw new InvalidOperationException();
                 }
             }
