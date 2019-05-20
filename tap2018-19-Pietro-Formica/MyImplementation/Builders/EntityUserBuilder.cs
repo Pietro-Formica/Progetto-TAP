@@ -12,19 +12,19 @@ using TAP2018_19.AuctionSite.Interfaces;
 namespace MyImplementation.Builders
 {
 
-    class UserEntityBuilder
+    class EntityUserBuilder
     {
         private string _id;
         private string _password;
         private string _siteName;
-        private UserEntityBuilder(string id) => _id = id;
-        public static UserEntityBuilder NewBuilder(string id) => new UserEntityBuilder(id);
-        public UserEntityBuilder Password(string password)
+        private EntityUserBuilder(string id) => _id = id;
+        public static EntityUserBuilder NewBuilder(string id) => new EntityUserBuilder(id);
+        public EntityUserBuilder Password(string password)
         {
             _password = password;
             return this;
         }
-        public UserEntityBuilder SiteName(string siteName)
+        public EntityUserBuilder SiteName(string siteName)
         {
             _siteName = siteName;
             return this;

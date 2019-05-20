@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using MyImplementation.Builders;
+using MyImplementation.Exceptions;
 using MyImplementation.Extensions;
 using MyImplementation.MyDatabase.Context;
 using TAP2018_19.AlarmClock.Interfaces;

@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyImplementation
+namespace MyImplementation.Builders
 {
-
-    public interface IExceptionDb
+    class EntitySessionBuild
     {
-        void GetException();
+
     }
 }

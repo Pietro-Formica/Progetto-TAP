@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Sockets;
 using Castle.Core.Internal;
 using MyImplementation.Builders;
+using MyImplementation.Exceptions;
 using MyImplementation.Extensions;
 using MyImplementation.MyDatabase.Context;
 using MyImplementation.MyDatabase.DataEntities;
@@ -62,7 +63,7 @@ namespace MyImplementation.ConcreteClasses
 
         public void CreateUser(string username, string password)
         {
-            UserEntityBuilder.NewBuilder(username)
+            EntityUserBuilder.NewBuilder(username)
                 .Password(password)
                 .SiteName(Name)
                 .Build()

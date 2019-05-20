@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MyImplementation.Exceptions.Interface;
 using TAP2018_19.AuctionSite.Interfaces;
 
-namespace MyImplementation
+namespace MyImplementation.Exceptions
 {
     class DbInexistentNameException : IExceptionDb
     {

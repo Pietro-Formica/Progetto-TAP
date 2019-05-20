@@ -10,6 +10,7 @@ using System.Linq;
 using Castle.Core.Internal;
 using MyImplementation.Builders;
 using MyImplementation.ConcreteClasses;
+using MyImplementation.Exceptions.Interface;
 using MyImplementation.MyDatabase.Context;
 using MyImplementation.MyDatabase.DataEntities;
 using MyImplementation.ValidateArguments;
