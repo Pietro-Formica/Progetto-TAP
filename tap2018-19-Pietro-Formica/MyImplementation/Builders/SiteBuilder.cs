@@ -43,10 +43,6 @@ namespace MyImplementation.Builders
             }
             set => _siteEntity = value;
         }
-        private SiteBuilder()
-        {
-        }
-        public static SiteBuilder NewSiteBuilder() => new SiteBuilder();
         public SiteBuilder SetConnectionString(string connectionString)
         {
             Control.CheckConnectionString(connectionString);
@@ -58,6 +54,10 @@ namespace MyImplementation.Builders
             _alarmClock = alarmClock;
             return this;
         }
+        private SiteBuilder()
+        {
+        }
+        public static SiteBuilder NewSiteBuilder() => new SiteBuilder();
         public Site Build()
         {
             Control.CheckAlarmClock(AlarmClock, SiteEntity.Timezone);
