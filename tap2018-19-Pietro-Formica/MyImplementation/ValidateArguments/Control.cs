@@ -41,9 +41,7 @@ namespace MyImplementation.ValidateArguments
 
         public static void CheckAlarmClock(IAlarmClock alarmClock, int siteTimezone)              
         {
-            if (alarmClock is null) throw new ArgumentNullException();
             if (alarmClock.Timezone != siteTimezone) throw new ArgumentException();
- 
         }
         public static void CheckPassword(string password)
         {

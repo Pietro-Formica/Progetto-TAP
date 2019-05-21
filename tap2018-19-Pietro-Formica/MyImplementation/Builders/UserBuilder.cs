@@ -14,15 +14,42 @@ namespace MyImplementation.Builders
 {
     public class UserBuilder
     {
-        public string ConnectionString { get; private set; }
+        private string _connectionString;
+        public string ConnectionString
+        {
+            get
+            {
+                if(_connectionString is null) throw new ArgumentNullException();
+                return _connectionString;
+            }
+        }
         private IAlarmClock _alarmClock;
-        public UserEntity UserEntity { get; set; }
+        public IAlarmClock AlarmClock
+        {
+            get
+            {
+                if (_alarmClock is null) throw new ArgumentNullException();
+                    return _alarmClock;
+            }
+        }
+
+        private UserEntity _userEntity;
+        public UserEntity UserEntity
+        {
+            get
+            {
+                if (_userEntity is null) throw new ArgumentNullException();
+                return _userEntity;
+            }
+            set => _userEntity = value;
+        }
+
         private UserBuilder() { }
         public static UserBuilder NewUserBuilder() => new UserBuilder();
         public UserBuilder SetConnectionString(string connectionString)
         {
             Control.CheckConnectionString(connectionString);
-            ConnectionString = connectionString;
+            _connectionString = connectionString;
             return this;
         }
         public UserBuilder SetEntity(UserEntity userEntity)
@@ -37,10 +64,7 @@ namespace MyImplementation.Builders
         }
         public User Build()
         {
-            if(ConnectionString is null) throw new ArgumentNullException();
-            if(UserEntity is null) throw new ArgumentNullException();
-            if(_alarmClock is null) throw new ArgumentNullException();
-            var user = new User(UserEntity.Id, UserEntity.SiteId, ConnectionString, _alarmClock);
+            var user = new User(UserEntity.Id, UserEntity.SiteId, ConnectionString, AlarmClock);
             return user;
         }
         public IEnumerable<IUser> BuildAll(IEnumerable<UserEntity> userEntities)

@@ -79,7 +79,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bindings\InjectonModule.cs" />
-    <Compile Include="Builders\EntitySessionBuild.cs" />
+    <Compile Include="Builders\EntitySessionBuilder.cs" />
+    <Compile Include="Builders\SessionBuilder.cs" />
     <Compile Include="Builders\SiteBuilder.cs" />
     <Compile Include="Builders\UserBuilder.cs" />
     <Compile Include="Builders\EntityUserBuilder.cs" />

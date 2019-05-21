@@ -14,9 +14,35 @@ namespace MyImplementation.Builders
 
     public class SiteBuilder
     {
-        public string ConnectionString { get; private set; }
+        private string _connectionString;
+        public string ConnectionString
+        {
+            get
+            {
+                if (_connectionString is null) throw new ArgumentNullException();
+                return _connectionString;
+            }
+        }
         private IAlarmClock _alarmClock;
-        public SiteEntity SiteEntity { get; set; }
+        public IAlarmClock AlarmClock
+        {
+            get
+            {
+                if (_alarmClock is null) throw new ArgumentNullException();
+                return _alarmClock;
+            }
+        }
+
+        private SiteEntity _siteEntity;
+        public SiteEntity SiteEntity
+        {
+            get
+            {
+                if (_siteEntity is null) throw new ArgumentNullException();
+                return _siteEntity;
+            }
+            set => _siteEntity = value;
+        }
         private SiteBuilder()
         {
         }
@@ -24,7 +50,7 @@ namespace MyImplementation.Builders
         public SiteBuilder SetConnectionString(string connectionString)
         {
             Control.CheckConnectionString(connectionString);
-            ConnectionString = connectionString;
+            _connectionString = connectionString;
             return this;
         }
         public SiteBuilder SetAlarmClock(IAlarmClock alarmClock)
@@ -34,11 +60,9 @@ namespace MyImplementation.Builders
         }
         public Site Build()
         {
-            if (ConnectionString is null) throw new ArgumentNullException();
-            if (SiteEntity is null) throw new ArgumentNullException();
-            Control.CheckAlarmClock(_alarmClock, SiteEntity.Timezone);
+            Control.CheckAlarmClock(AlarmClock, SiteEntity.Timezone);
             var site = new Site(SiteEntity.Id, SiteEntity.Timezone, SiteEntity.SessionExpirationInSeconds,
-                SiteEntity.MinimumBidIncrement, ConnectionString, _alarmClock);
+                SiteEntity.MinimumBidIncrement, ConnectionString, AlarmClock);
             return site;
         }
         public IEnumerable<string> BuildAll(IEnumerable<SiteEntity> siteEntities)

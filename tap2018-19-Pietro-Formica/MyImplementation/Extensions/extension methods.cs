@@ -22,8 +22,6 @@ namespace MyImplementation.Extensions
     {
         public static IEnumerable<SiteEntity> GetAllSiteName(this SiteBuilder siteBuilder)
         {
-            if(siteBuilder.ConnectionString is null)
-                throw new ArgumentNullException();
             using (var context = new MyDBdContext(siteBuilder.ConnectionString))
             {
                 IEnumerable<SiteEntity> siteName = context.SiteEntities.ToList();
@@ -32,8 +30,6 @@ namespace MyImplementation.Extensions
         }
         public static IEnumerable<UserEntity> GetUsers(this UserBuilder userBuilder, string siteName)
         {
-            if (userBuilder.ConnectionString is null)
-                throw new ArgumentNullException();
             using (var context = new MyDBdContext(userBuilder.ConnectionString))
             {
                 IEnumerable<UserEntity> userEntities = context.SiteEntities.Where(s => s.Id == siteName).Select(s => s.Users).Single();
@@ -42,8 +38,6 @@ namespace MyImplementation.Extensions
         }
         public static SiteBuilder SearchEntity(this SiteBuilder siteBuilder, string name, IExceptionDb exception)
         {
-            if (siteBuilder.ConnectionString is null)
-                throw new ArgumentNullException(nameof(siteBuilder));
             Control.CheckName(DomainConstraints.MaxSiteName, DomainConstraints.MinSiteName, name);
             using (var context = new MyDBdContext(siteBuilder.ConnectionString))
             {
