@@ -11,53 +11,27 @@ namespace MyImplementation.Builders
 
     public class SiteBuilder
     {
-         private string _connectionString;
-        public string ConnectionString
-        {
-            get
-            {
-                if (_connectionString is null) throw new ArgumentNullException();
-                return _connectionString;
-            }
-        }
+        public string ConnectionString { get; private set; }
 
-        private IAlarmClock _alarmClock;
+        public IAlarmClock AlarmClock { get; private set; }
 
-        public IAlarmClock AlarmClock
-        {
-            get
-            {
-                if (_alarmClock is null) throw new ArgumentNullException();
-                return _alarmClock;
-            }
-        }
+        public SiteEntity SiteEntity { get; private set; }
 
-        private SiteEntity _siteEntity;
-
-        public SiteEntity SiteEntity
-        {
-            get
-            {
-                if (_siteEntity is null) throw new ArgumentNullException();
-                return _siteEntity;
-            }
-            set => _siteEntity = value;
-        }
 
         public SiteBuilder SetConnectionString(string connectionString)
         {
             Control.CheckConnectionString(connectionString);
-            _connectionString = connectionString;
+            ConnectionString = connectionString;
             return this;
         }
         public SiteBuilder SetAlarmClock(IAlarmClock alarmClock)
         {
-            _alarmClock = alarmClock;
+            AlarmClock = alarmClock;
             return this;
         }
         public SiteBuilder SetEntity(IManager<SiteEntity> manager, string nameEntity)
         {
-            _siteEntity = manager.SearchEntity(nameEntity);
+            SiteEntity = manager.SearchEntity(nameEntity);
             return this;
         }
         private SiteBuilder()
@@ -66,6 +40,10 @@ namespace MyImplementation.Builders
         public static SiteBuilder NewSiteBuilder() => new SiteBuilder();
         public Site Build()
         {
+
+            if (SiteEntity is null) throw new ArgumentNullException();
+            if (ConnectionString is null) throw new ArgumentNullException();
+            if (AlarmClock is null) throw new ArgumentNullException();
             Control.CheckAlarmClock(AlarmClock, SiteEntity.Timezone);
             var site = new Site(SiteEntity.Id, SiteEntity.Timezone, SiteEntity.SessionExpirationInSeconds,
                 SiteEntity.MinimumBidIncrement, ConnectionString, AlarmClock);

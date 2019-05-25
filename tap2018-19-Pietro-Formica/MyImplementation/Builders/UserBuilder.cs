@@ -11,68 +11,52 @@ namespace MyImplementation.Builders
 {
     public class UserBuilder
     {
-        private string _connectionString;
-        public string ConnectionString
-        {
-            get
-            {
-                if(_connectionString is null) throw new ArgumentNullException();
-                return _connectionString;
-            }
-        }
-        private IAlarmClock _alarmClock;
-        public IAlarmClock AlarmClock
-        {
-            get
-            {
-                if (_alarmClock is null) throw new ArgumentNullException();
-                    return _alarmClock;
-            }
-        }
+        public string ConnectionString { get; private set; }
 
-        private UserEntity _userEntity;
-        public UserEntity UserEntity
-        {
-            get
-            {
-                if (_userEntity is null) throw new ArgumentNullException();
-                return _userEntity;
-            }
-            set => _userEntity = value;
-        }
+        public IAlarmClock AlarmClock { get; private set; }
 
+        public UserEntity UserEntity { get; private set; }
+  
         private UserBuilder() { }
+
         public static UserBuilder NewUserBuilder() => new UserBuilder();
+
         public UserBuilder SetConnectionString(string connectionString)
         {
             Control.CheckConnectionString(connectionString);
-            _connectionString = connectionString;
+            ConnectionString = connectionString;
             return this;
         }
+
         public UserBuilder SetEntity(UserEntity userEntity)
         {
             UserEntity = userEntity;
             return this;
         }
+
         public UserBuilder SetAlarmClock(IAlarmClock alarmClock)
         {
-            _alarmClock = alarmClock;
+            AlarmClock = alarmClock;
             return this;
         }
+
         public User Build()
         {
+            if (UserEntity is null) throw new ArgumentNullException();
+            if (ConnectionString is null) throw new ArgumentNullException();
+            if (AlarmClock is null) throw new ArgumentNullException();
             var user = new User(UserEntity.Id, UserEntity.SiteId, ConnectionString, AlarmClock);
             return user;
         }
-        public IEnumerable<IUser> BuildAll(IEnumerable<UserEntity> userEntities)
-        {
-            var enumerable = userEntities.ToList();
-            if(enumerable.Count == 0) yield break;
-            foreach (var userEntity in enumerable)
-            {
-                UserEntity = userEntity;
-                
 
+        public IEnumerable<IUser> BuildAll(IManager<UserEntity> manager)
+        {
+            var enumerable = manager.SearchAllEntities();
+            var entities = enumerable.ToList();
+            if(entities.Count == 0) yield break;
+            foreach (var userEntity in entities)
+            {
+                UserEntity = userEntity;               
                 yield return Build();
             }
         }

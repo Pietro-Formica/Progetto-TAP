@@ -12,6 +12,7 @@ namespace MyImplementation.ConcreteClasses
      {
          private readonly string _connectionString;
          private readonly IAlarmClock _alarmClock;
+       
          public Site(string name, int timezone, int sessionExpirationInSeconds, double minimumBidIncrement, string connectionString, IAlarmClock alarmClock)
          {
              Name = name;
@@ -23,9 +24,16 @@ namespace MyImplementation.ConcreteClasses
          }
          public IEnumerable<IUser> GetUsers()
          {
-             var builder = UserBuilder.NewUserBuilder().SetAlarmClock(_alarmClock).SetConnectionString(_connectionString);
+/*             var builder = UserBuilder.NewUserBuilder().SetAlarmClock(_alarmClock).SetConnectionString(_connectionString);
              var listUsers = builder.GetUsers(Name);
-             return builder.BuildAll(listUsers);
+             return builder.BuildAll(listUsers);*/
+             var builder = UserBuilder.NewUserBuilder()
+                 .SetAlarmClock(_alarmClock)
+                 .SetConnectionString(_connectionString)
+                 .BuildAll(new UserManager(_connectionString, Name));
+
+             return builder;
+
 
 
          }

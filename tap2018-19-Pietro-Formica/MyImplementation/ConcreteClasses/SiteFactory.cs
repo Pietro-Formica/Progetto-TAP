@@ -78,7 +78,7 @@ namespace MyImplementation.ConcreteClasses
         }
         private static IEnumerable<string> YieldReturn( List<SiteEntity> list)
         {
-            if (list.Any()) yield break;
+            if (list.Count == 0) yield break;
             foreach (var siteEntity in list)
             {
                 yield return siteEntity.Id;

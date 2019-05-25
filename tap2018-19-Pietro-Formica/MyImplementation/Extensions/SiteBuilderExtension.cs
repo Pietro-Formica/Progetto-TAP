@@ -14,7 +14,7 @@ namespace MyImplementation.Extensions
 
     public static class SiteBuilderExtension
     {
-        public static SiteBuilder SearchEntity(this SiteBuilder siteBuilder, string name, IExceptionDb exception)
+/*        public static SiteBuilder SearchEntity(this SiteBuilder siteBuilder, string name, IExceptionDb exception)
         {
             Control.CheckName(DomainConstraints.MaxSiteName, DomainConstraints.MinSiteName, name);
             using (var context = new MyDBdContext(siteBuilder.ConnectionString))
@@ -25,10 +25,10 @@ namespace MyImplementation.Extensions
                 {
                     exception.GetException();
                 }
-                siteBuilder.SiteEntity = siteEntity;
+                siteBuilder.SetEntity()
                 return siteBuilder;
             }
-        }
+        }*/
         public static void SaveEntityOnDb(this SiteEntity siteEntity, string connectionString)
         {
             Control.CheckConnectionString(connectionString);

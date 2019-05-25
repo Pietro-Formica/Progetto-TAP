@@ -98,6 +98,7 @@
     <Compile Include="MyDatabase\DataEntities\SessionEntity.cs" />
     <Compile Include="MyDatabase\DataEntities\UserEntity.cs" />
     <Compile Include="SiteFactoryManager.cs" />
+    <Compile Include="UserManager.cs" />
     <Compile Include="ValidateArguments\Control.cs" />
     <Compile Include="MyDatabase\DataEntities\SiteEntity.cs" />
     <Compile Include="MyDatabase\Context\MyDbContext.cs" />
