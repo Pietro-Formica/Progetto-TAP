@@ -1,7 +1,4 @@
-﻿using System.Data.Entity.Infrastructure;
-using System.Runtime.Remoting.Messaging;
-using MyImplementation.MyDatabase.Context;
-using MyImplementation.MyDatabase.DataEntities;
+﻿using MyImplementation.MyDatabase.DataEntities;
 using MyImplementation.ValidateArguments;
 using TAP2018_19.AuctionSite.Interfaces;
 

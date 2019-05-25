@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Linq;
-using System.Security.Policy;
-using MyImplementation.MyDatabase.DataEntities;
 using TAP2018_19.AlarmClock.Interfaces;
 using TAP2018_19.AuctionSite.Interfaces;
 
 namespace MyImplementation.ConcreteClasses
 {
-    class Session : ISession, IEquatable<Session>
+
+    public class Session : ISession, IEquatable<Session>
     {
         private readonly string _connectionString;
         private readonly IAlarmClock _alarmClock;

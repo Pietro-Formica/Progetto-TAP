@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using MyImplementation.MyDatabase.DataEntities;
 using TAP2018_19.AlarmClock.Interfaces;
 using TAP2018_19.AuctionSite.Interfaces;
 

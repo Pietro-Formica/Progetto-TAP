@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Castle.Core.Internal;
 using MyImplementation.ConcreteClasses;
-using MyImplementation.MyDatabase.Context;
 using MyImplementation.MyDatabase.DataEntities;
 using MyImplementation.ValidateArguments;
 using TAP2018_19.AlarmClock.Interfaces;
-using TAP2018_19.AuctionSite.Interfaces;
 
 namespace MyImplementation.Builders
 {
 
     public class SiteBuilder
     {
-        private string _connectionString;
+         private string _connectionString;
         public string ConnectionString
         {
             get
@@ -23,7 +20,9 @@ namespace MyImplementation.Builders
                 return _connectionString;
             }
         }
+
         private IAlarmClock _alarmClock;
+
         public IAlarmClock AlarmClock
         {
             get
@@ -34,6 +33,7 @@ namespace MyImplementation.Builders
         }
 
         private SiteEntity _siteEntity;
+
         public SiteEntity SiteEntity
         {
             get
@@ -43,6 +43,7 @@ namespace MyImplementation.Builders
             }
             set => _siteEntity = value;
         }
+
         public SiteBuilder SetConnectionString(string connectionString)
         {
             Control.CheckConnectionString(connectionString);
@@ -52,6 +53,11 @@ namespace MyImplementation.Builders
         public SiteBuilder SetAlarmClock(IAlarmClock alarmClock)
         {
             _alarmClock = alarmClock;
+            return this;
+        }
+        public SiteBuilder SetEntity(IManager<SiteEntity> manager, string nameEntity)
+        {
+            _siteEntity = manager.SearchEntity(nameEntity);
             return this;
         }
         private SiteBuilder()
@@ -65,15 +71,22 @@ namespace MyImplementation.Builders
                 SiteEntity.MinimumBidIncrement, ConnectionString, AlarmClock);
             return site;
         }
-        public IEnumerable<string> BuildAll(IEnumerable<SiteEntity> siteEntities)
+        public IEnumerable<string> BuildAll(IManager<SiteEntity> manager)
         {
-            var enumerable = siteEntities.ToList();
-            if(enumerable.IsNullOrEmpty()) yield break;
-            foreach (var siteEntity in enumerable)
+            //var enumerable = siteEntities.ToList();
+             var siteList = manager.SearchAllEntities();
+             var siteEntities = siteList.ToList();
+             if (siteEntities.Any()) yield break;
+            foreach (var siteEntity in siteEntities)
             {
                 yield return siteEntity.Id;
             }
         }
+
+
     }
 
+
 }
+
+ 

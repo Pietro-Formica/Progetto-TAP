@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-
-namespace MyImplementation.MyDatabase.DataEntities
+﻿namespace MyImplementation.MyDatabase.DataEntities
 {
 
     public class UserEntity
@@ -11,6 +8,7 @@ namespace MyImplementation.MyDatabase.DataEntities
         public string Password { get; set; }
         public string SiteId { get; set; }
         public virtual SiteEntity Site { get; set; }
+        public string SessionId { get; set; }
         public virtual SessionEntity Session { get; set; }
 
     }

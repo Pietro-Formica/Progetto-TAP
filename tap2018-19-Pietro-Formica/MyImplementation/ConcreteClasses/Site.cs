@@ -1,17 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
-using System.Linq;
-using System.Net.Sockets;
-using Castle.Core.Internal;
 using MyImplementation.Builders;
-using MyImplementation.Exceptions;
 using MyImplementation.Extensions;
-using MyImplementation.MyDatabase.Context;
-using MyImplementation.MyDatabase.DataEntities;
 using MyImplementation.ValidateArguments;
-using Ninject.Infrastructure.Language;
 using TAP2018_19.AlarmClock.Interfaces;
 using TAP2018_19.AuctionSite.Interfaces;
 
@@ -52,6 +43,36 @@ namespace MyImplementation.ConcreteClasses
         {
             Control.CheckName(DomainConstraints.MaxUserName, DomainConstraints.MinUserName,username);
             Control.CheckPassword(password);
+            var session = SessionBuilder.NewSessionBuilder().SetConnectionString(_connectionString).SearchEntity(Name,null,username, password);
+            if (session is null)
+                return null;
+            if (session.SessionEntity is null)
+            {
+                var sessionEntity = EntitySessionBuilder.NewBuilder()
+                    .Id(username)
+                    .SiteName(Name)
+                    .ValidUntil(_alarmClock.Now.AddSeconds(SessionExpirationInSeconds))
+                    .EntityUser(username, password, Name, _connectionString)
+                    .Build();
+
+                sessionEntity.SaveEntityOnDb(_connectionString);
+                return session.SetAlarmClock(_alarmClock).SetSessionEntity(sessionEntity)
+                    .Build();
+
+            }
+            if (DateTime.Compare(_alarmClock.Now, session.SessionEntity.ValidUntil) < 0)
+            {
+                return session.SetAlarmClock(_alarmClock).Build();
+
+            }
+            else
+            {
+
+             
+
+
+
+            }
             throw new NotImplementedException();
 
         }
@@ -72,7 +93,7 @@ namespace MyImplementation.ConcreteClasses
 
         public void Delete()
         {
-            SiteBuilder.NewSiteBuilder().SetConnectionString(_connectionString).SearchEntity(Name, new DbInvalidOperationException()).DestroyEntity();
+            SiteBuilder.NewSiteBuilder().SetConnectionString(_connectionString).DestroyEntity(Name);
         }
 
         public void CleanupSessions()

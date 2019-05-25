@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Castle.Core.Internal;
 using MyImplementation.ConcreteClasses;
 using MyImplementation.MyDatabase.DataEntities;
 using MyImplementation.ValidateArguments;
@@ -70,7 +67,7 @@ namespace MyImplementation.Builders
         public IEnumerable<IUser> BuildAll(IEnumerable<UserEntity> userEntities)
         {
             var enumerable = userEntities.ToList();
-            if(enumerable.IsNullOrEmpty()) yield break;
+            if(enumerable.Count == 0) yield break;
             foreach (var userEntity in enumerable)
             {
                 UserEntity = userEntity;

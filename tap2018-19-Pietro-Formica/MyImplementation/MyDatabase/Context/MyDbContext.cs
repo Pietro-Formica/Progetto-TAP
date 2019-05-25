@@ -1,7 +1,5 @@
-﻿using System.Data;
-using System.Data.Common;
-using System.Data.Entity;
-using System.Linq.Expressions;
+﻿using System.Data.Entity;
+using System.Runtime.InteropServices;
 using MyImplementation.MyDatabase.DataEntities;
 
 namespace MyImplementation.MyDatabase.Context
@@ -29,9 +27,12 @@ namespace MyImplementation.MyDatabase.Context
 
             modelBuilder.Entity<UserEntity>().HasRequired(s => s.Site).WithMany(x => x.Users).HasForeignKey(k => k.SiteId);
 
-            modelBuilder.Entity<SessionEntity>().HasRequired(x => x.Site).WithMany(x => x.SessionEntities);
+            modelBuilder.Entity<SiteEntity>().HasMany(ss => ss.SessionEntities).WithRequired(ss => ss.Site).HasForeignKey(ss => ss.SiteId);
 
-            modelBuilder.Entity<SessionEntity>().HasRequired(x => x.EntityUser).WithOptional(x => x.Session);
+           // modelBuilder.Entity<SessionEntity>().HasRequired(x => x.EntityUser).WithOptional(x => x.Session);
+           modelBuilder.Entity<UserEntity>().HasOptional(ss => ss.Session).WithOptionalDependent(ss => ss.EntityUser);
+           //modelBuilder.Entity<SessionEntity>().HasRequired(ss => ss.EntityUser).WithRequiredPrincipal(ss => ss.Session);
+
         }
     }
 

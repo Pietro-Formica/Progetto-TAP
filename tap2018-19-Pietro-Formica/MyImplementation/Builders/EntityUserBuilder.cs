@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity.Infrastructure;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MyImplementation.MyDatabase.Context;
 using MyImplementation.MyDatabase.DataEntities;
 using MyImplementation.ValidateArguments;
 using TAP2018_19.AuctionSite.Interfaces;
