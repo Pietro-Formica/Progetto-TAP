@@ -27,10 +27,12 @@ namespace MyImplementation.ConcreteClasses
 /*             var builder = UserBuilder.NewUserBuilder().SetAlarmClock(_alarmClock).SetConnectionString(_connectionString);
              var listUsers = builder.GetUsers(Name);
              return builder.BuildAll(listUsers);*/
+             var userManager = new UserManager(_connectionString, Name);
+             var users = userManager.SearchAllEntities();
              var builder = UserBuilder.NewUserBuilder()
                  .SetAlarmClock(_alarmClock)
                  .SetConnectionString(_connectionString)
-                 .BuildAll(new UserManager(_connectionString, Name));
+                 .BuildAll(users);
 
              return builder;
 
@@ -39,7 +41,13 @@ namespace MyImplementation.ConcreteClasses
          }
          public IEnumerable<ISession> GetSessions()
         {
-            throw new NotImplementedException();
+            var sessionManager = new SessionManager(_connectionString,Name);
+            var sessions = sessionManager.SearchAllEntities();
+
+            return SessionBuilder.NewSessionBuilder()
+                .SetAlarmClock(_alarmClock)
+                .SetConnectionString(_connectionString)
+                .BuildAll(sessions);
         }
 
         public IEnumerable<IAuction> GetAuctions(bool onlyNotEnded)
@@ -49,9 +57,9 @@ namespace MyImplementation.ConcreteClasses
 
         public ISession Login(string username, string password)
         {
-            Control.CheckName(DomainConstraints.MaxUserName, DomainConstraints.MinUserName,username);
+           // Control.CheckName(DomainConstraints.MaxUserName, DomainConstraints.MinUserName,username);
             Control.CheckPassword(password);
-            var session = SessionBuilder.NewSessionBuilder().SetConnectionString(_connectionString).SearchEntity(Name,null,username, password);
+/*            var session = SessionBuilder.NewSessionBuilder().SetConnectionString(_connectionString).SearchEntity(Name,null,username, password);
             if (session is null)
                 return null;
             if (session.SessionEntity is null)
@@ -80,14 +88,49 @@ namespace MyImplementation.ConcreteClasses
 
 
 
+            }*/
+            var userManager = new UserManager(_connectionString,Name);
+            var userEntity = userManager.SearchEntity(username);
+            if (userEntity is null || !userEntity.Password.Equals(password)) return null;
+            if (userEntity.Session is null)
+            {
+                var sessionEntity = EntitySessionBuilder.NewBuilder()
+                    .Id(username)
+                    .SiteName(Name)
+                    .ValidUntil(_alarmClock.Now.AddSeconds(SessionExpirationInSeconds))
+                    .Build();
+                sessionEntity.SaveEntityOnDb(_connectionString);
+                    
+
+                return SessionBuilder.NewSessionBuilder()
+                    .SetAlarmClock(_alarmClock)
+                    .SetConnectionString(_connectionString)
+                    .Build(sessionEntity);
             }
-            throw new NotImplementedException();
+
+            userEntity.Session.ValidUntil = _alarmClock.Now.AddSeconds(SessionExpirationInSeconds);
+            var sessionManager = new SessionManager(_connectionString,Name);
+            sessionManager.SaveOnDb(userEntity.Session,true);
+
+            return SessionBuilder.NewSessionBuilder()
+                .SetAlarmClock(_alarmClock)
+                .SetConnectionString(_connectionString)
+                .Build(userEntity.Session);
+
 
         }
 
+          
         public ISession GetSession(string sessionId)
         {
-            throw new NotImplementedException();
+            var sessionManager = new SessionManager(_connectionString, Name);
+            var sessionEntity = sessionManager.SearchEntity(sessionId);
+            if (sessionEntity is null) return null;
+            return SessionBuilder.NewSessionBuilder()
+                .SetConnectionString(_connectionString)
+                .SetAlarmClock(_alarmClock)
+                .Build(sessionEntity);
+
         }
 
         public void CreateUser(string username, string password)

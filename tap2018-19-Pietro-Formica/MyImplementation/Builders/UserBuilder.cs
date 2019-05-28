@@ -28,9 +28,10 @@ namespace MyImplementation.Builders
             return this;
         }
 
-        public UserBuilder SetEntity(UserEntity userEntity)
+        public UserBuilder SetEntity(IManager<UserEntity> manager, string key)
         {
-            UserEntity = userEntity;
+            var user = manager.SearchEntity(key);
+            UserEntity = user;
             return this;
         }
 
@@ -49,9 +50,9 @@ namespace MyImplementation.Builders
             return user;
         }
 
-        public IEnumerable<IUser> BuildAll(IManager<UserEntity> manager)
+        public IEnumerable<IUser> BuildAll(IEnumerable<UserEntity> enumerable)
         {
-            var enumerable = manager.SearchAllEntities();
+
             var entities = enumerable.ToList();
             if(entities.Count == 0) yield break;
             foreach (var userEntity in entities)

@@ -9,24 +9,24 @@ namespace MyImplementation.ConcreteClasses
     {
         private readonly string _connectionString;
         private readonly IAlarmClock _alarmClock;
-        public Session(string id, DateTime validUntil, IUser user, string connectionString, IAlarmClock alarmClock)
+        private readonly string _mySite;
+        public Session(string id, DateTime validUntil, IUser user,string mySite, string connectionString, IAlarmClock alarmClock)
         {
             Id = id;
             ValidUntil = validUntil;
             User = user;
+            _mySite = mySite;
             _connectionString = connectionString;
             _alarmClock = alarmClock;
         }
 
 
-        public override int GetHashCode()
-        {
-            return (Id != null ? Id.GetHashCode() : 0);
-        }
 
         public bool IsValid()
         {
-            throw new NotImplementedException();
+            var sessionManager = new SessionManager(_connectionString,_mySite);
+            var sessionEntity = sessionManager.SearchEntity(Id);
+            return (sessionEntity != null && DateTime.Compare(_alarmClock.Now, sessionEntity.ValidUntil) < 0);
         }
 
         public void Logout()
@@ -38,6 +38,7 @@ namespace MyImplementation.ConcreteClasses
         {
             throw new NotImplementedException();
         }
+
         public bool Equals(Session other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -51,6 +52,11 @@ namespace MyImplementation.ConcreteClasses
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
             return Equals((Session)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Id != null ? Id.GetHashCode() : 0);
         }
         public string Id { get; }
         public DateTime ValidUntil { get; }

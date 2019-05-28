@@ -9,7 +9,7 @@
         public string SiteId { get; set; }
         public virtual SiteEntity Site { get; set; }
         public string SessionId { get; set; }
-        public virtual SessionEntity Session { get; set; }
+        public  virtual SessionEntity Session { get; set; }
 
     }
 

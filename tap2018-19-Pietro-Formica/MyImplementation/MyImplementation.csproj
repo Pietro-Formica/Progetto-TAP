@@ -97,6 +97,7 @@
     <Compile Include="IManager.cs" />
     <Compile Include="MyDatabase\DataEntities\SessionEntity.cs" />
     <Compile Include="MyDatabase\DataEntities\UserEntity.cs" />
+    <Compile Include="SessionManager.cs" />
     <Compile Include="SiteFactoryManager.cs" />
     <Compile Include="UserManager.cs" />
     <Compile Include="ValidateArguments\Control.cs" />

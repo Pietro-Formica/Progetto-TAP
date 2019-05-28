@@ -12,7 +12,7 @@ namespace MyImplementation.Extensions
 
     public static class SessionBuilderExtension
     {
-        public static SessionBuilder SearchEntity(this SessionBuilder sessionBuilder, string siteName, string sessionId = null, string userName = null, string password = null)
+        /*public static SessionBuilder SearchEntity(this SessionBuilder sessionBuilder, string siteName, string sessionId = null, string userName = null, string password = null)
         {
             using (var context = new MyDBdContext(sessionBuilder.ConnectionString))
             {
@@ -43,7 +43,7 @@ namespace MyImplementation.Extensions
 
                 return sessionBuilder;
             }
-        }
+        }*/
         public static EntitySessionBuilder EntityUser(this EntitySessionBuilder entitySessionBuilder, string username, string password, string nameSite, string connectionString)
         {
             using (var context = new MyDBdContext(connectionString))

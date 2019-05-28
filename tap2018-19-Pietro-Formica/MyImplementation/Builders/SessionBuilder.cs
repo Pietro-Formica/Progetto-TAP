@@ -24,9 +24,10 @@ namespace MyImplementation.Builders
 
         public static SessionBuilder NewSessionBuilder() => new SessionBuilder();
 
-        public SessionBuilder SetSessionEntity(SessionEntity sessionEntity)
+        public SessionBuilder SetSessionEntity(IManager<SessionEntity> manager, string key)
         {
-            SessionEntity = sessionEntity;
+            var session = manager.SearchEntity(key);
+            SessionEntity = session;
             return this;
         }
 
@@ -43,8 +44,10 @@ namespace MyImplementation.Builders
             return this;
         }
 
-        public Session Build()
+        public Session Build(SessionEntity sessionEntity = null)
         {
+            if (sessionEntity != null)
+                SessionEntity = sessionEntity;
             
             if(SessionEntity is null) throw new ArgumentNullException();
             if(ConnectionString is null) throw new ArgumentNullException();
@@ -52,17 +55,21 @@ namespace MyImplementation.Builders
             var user = UserBuilder.NewUserBuilder()
                 .SetConnectionString(ConnectionString)
                 .SetAlarmClock(AlarmClock)
-                .SetEntity(null)
+                .SetEntity(new UserManager(ConnectionString,SessionEntity.SiteId), SessionEntity.Id)
                 .Build();
-            var session = new Session(SessionEntity.Id, SessionEntity.ValidUntil, user, ConnectionString, AlarmClock);
+            var session = new Session(SessionEntity.Id, SessionEntity.ValidUntil, user, SessionEntity.SiteId, ConnectionString, AlarmClock);
             return session;
         }
 
-        public IEnumerable<ISession> BuildAll(IEnumerable<SessionEntity> sessionEntities)
+        public IEnumerable<ISession> BuildAll(IEnumerable<SessionEntity> enumerable)
         {
-            var enumerable = sessionEntities.ToList();
-            if (enumerable.Count == 0) yield break;
-            foreach (var sessionEntity in enumerable)
+
+
+            var sessionEntities = enumerable.ToList();
+
+            if (sessionEntities.Count == 0) yield break;
+
+            foreach (var sessionEntity in sessionEntities)
             {
                 SessionEntity = sessionEntity;
                 yield return Build();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,6 +41,22 @@ namespace MyImplementation
             {
                 IEnumerable<SiteEntity> siteName = context.SiteEntities.ToList();
                 return siteName;
+            }
+        }
+        public void SaveOnDb(SiteEntity entity, bool upDate = false)
+        {
+
+            using (var contextDb = new MyDBdContext(_connectionString))
+            {
+                contextDb.SiteEntities.Add(entity);
+                try
+                {
+                    contextDb.SaveChanges();
+                }
+                catch (DbUpdateException)//da rivedere lol
+                {
+                    throw new NameAlreadyInUseException(entity.Id);
+                }
             }
         }
     }

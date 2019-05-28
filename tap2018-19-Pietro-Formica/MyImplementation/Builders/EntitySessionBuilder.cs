@@ -18,7 +18,7 @@ namespace MyImplementation.Builders
 
         public EntitySessionBuilder Id(string userId)
         {
-            _id = Guid.NewGuid().ToString();
+            _id = userId;// Guid.NewGuid().ToString();
             _userId = userId;
             return this;
         }
@@ -45,13 +45,13 @@ namespace MyImplementation.Builders
         {
             if(_id is null) throw new ArgumentNullException();
             if(_siteName is null) throw new ArgumentNullException();
-            if(_entityUser is null) throw new ArgumentNullException();
+           // if(_entityUser is null) throw new ArgumentNullException();
             var sessionEntity = new SessionEntity()
             {
                 Id = _id,
                 ValidUntil = _validUntil,
                // EntityUser = _entityUser,
-                UserId = _userId,
+                //UserId = _userId,
                 SiteId = _siteName
             };
             return sessionEntity;

@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 namespace MyImplementation
 {
 
-    public interface IManager<out T> where T : class
+    public interface IManager<T> where T : class
     {
         T SearchEntity(string key);
         IEnumerable<T> SearchAllEntities();
+        void SaveOnDb(T entity, bool upDate = false);
     }
 }
