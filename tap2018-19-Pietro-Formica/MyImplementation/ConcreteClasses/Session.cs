@@ -32,7 +32,11 @@ namespace MyImplementation.ConcreteClasses
 
         public void Logout()
         {
-            throw new NotImplementedException();
+            var sessionManager = new SessionManager(_connectionString, _mySite);
+            var sessionEntity = sessionManager.SearchEntity(Id) ?? throw new InvalidOperationException();
+            if(!DataValid(_alarmClock,sessionEntity)) throw new InvalidOperationException();
+            sessionEntity.ValidUntil = sessionEntity.ValidUntil.AddDays(-20);
+            sessionManager.SaveOnDb(sessionEntity,true);
         }
 
         public IAuction CreateAuction(string description, DateTime endsOn, double startingPrice)
