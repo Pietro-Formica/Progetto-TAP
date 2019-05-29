@@ -50,6 +50,22 @@ namespace MyImplementation
 
 
         }
+        public void DeleteEntity(SessionEntity entity)
+        {
+            using (var context = new MyDBdContext(_connectionString))
+            {
+                try
+                {
+                    context.Session.Attach(entity);
+                    context.Session.Remove(entity);
+                    context.SaveChanges();
+                }
+                catch (DbUpdateException)
+                {
+                   throw new InvalidOperationException();                   
+                }
+            }
+        }
         public void SaveOnDb(SessionEntity entity, bool upDate = false)
         {
             using (var contextDb = new MyDBdContext(_connectionString))

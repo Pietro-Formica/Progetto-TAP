@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using MyImplementation.Builders;
 using MyImplementation.Extensions;
 using MyImplementation.ValidateArguments;
@@ -10,6 +11,7 @@ namespace MyImplementation.ConcreteClasses
 {
      public class Site : ISite, IEquatable<Site>
      {
+         private const int TimeToCleanup = 5;
          private readonly string _connectionString;
          private readonly IAlarmClock _alarmClock;
        
@@ -21,7 +23,9 @@ namespace MyImplementation.ConcreteClasses
              MinimumBidIncrement = minimumBidIncrement;
              _connectionString = connectionString;
              _alarmClock = alarmClock;
-         }
+             var tick = _alarmClock.InstantiateAlarm(TimeToCleanup * 60 * 1000);
+             tick.RingingEvent += CleanupSessions;
+        }
          public IEnumerable<IUser> GetUsers()
          {
 /*             var builder = UserBuilder.NewUserBuilder().SetAlarmClock(_alarmClock).SetConnectionString(_connectionString);
@@ -125,7 +129,7 @@ namespace MyImplementation.ConcreteClasses
         {
             var sessionManager = new SessionManager(_connectionString, Name);
             var sessionEntity = sessionManager.SearchEntity(sessionId);
-            if (sessionEntity is null) return null;
+            if (sessionEntity is null || !Session.DataValid(_alarmClock,sessionEntity)) return null;
             return SessionBuilder.NewSessionBuilder()
                 .SetConnectionString(_connectionString)
                 .SetAlarmClock(_alarmClock)
@@ -149,7 +153,15 @@ namespace MyImplementation.ConcreteClasses
 
         public void CleanupSessions()
         {
-            throw new NotImplementedException();
+            var sessionManager = new SessionManager(_connectionString, Name);
+            var sessionList = sessionManager.SearchAllEntities().ToList();
+            sessionList.ForEach(session =>
+            {
+                if (!Session.DataValid(_alarmClock, session))
+                {
+                    sessionManager.DeleteEntity(session);
+                }
+            });
         }
         public bool Equals(Site other)
         {

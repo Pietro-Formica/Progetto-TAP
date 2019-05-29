@@ -11,6 +11,7 @@ namespace MyImplementation
     {
         T SearchEntity(string key);
         IEnumerable<T> SearchAllEntities();
+        void DeleteEntity(T entity);
         void SaveOnDb(T entity, bool upDate = false);
     }
 }

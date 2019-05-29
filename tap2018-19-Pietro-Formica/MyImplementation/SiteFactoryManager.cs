@@ -43,6 +43,10 @@ namespace MyImplementation
                 return siteName;
             }
         }
+        public void DeleteEntity(SiteEntity entity)
+        {
+            throw new NotImplementedException();
+        }
         public void SaveOnDb(SiteEntity entity, bool upDate = false)
         {
 

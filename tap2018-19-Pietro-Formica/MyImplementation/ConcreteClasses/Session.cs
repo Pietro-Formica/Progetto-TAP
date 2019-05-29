@@ -1,4 +1,5 @@
 ﻿using System;
+using MyImplementation.MyDatabase.DataEntities;
 using TAP2018_19.AlarmClock.Interfaces;
 using TAP2018_19.AuctionSite.Interfaces;
 
@@ -58,6 +59,9 @@ namespace MyImplementation.ConcreteClasses
         {
             return (Id != null ? Id.GetHashCode() : 0);
         }
+
+        public static bool DataValid(IAlarmClock alarmClock, SessionEntity sessionEntity) => DateTime.Compare(alarmClock.Now,sessionEntity.ValidUntil) < 0;
+  
         public string Id { get; }
         public DateTime ValidUntil { get; }
         public IUser User { get; }

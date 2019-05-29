@@ -58,6 +58,10 @@ namespace MyImplementation
                 return users;
             }
         }
+        public void DeleteEntity(UserEntity entity)
+        {
+            throw new NotImplementedException();
+        }
         public void SaveOnDb(UserEntity entity, bool upDate = false)
         {
             using (var contextDb = new MyDBdContext(_connectionString))
