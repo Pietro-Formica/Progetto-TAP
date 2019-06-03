@@ -26,9 +26,9 @@ namespace MyImplementation.ConcreteClasses
                 Database.SetInitializer(strategy);
                 strategy.InitializeDatabase(new MyDBdContext(connectionString));              
             }
-            catch
+            catch(Exception exception)
             {
-                throw new UnavailableDbException();
+                throw new UnavailableDbException("lol",exception.InnerException);
             }
         }
         public IEnumerable<string> GetSiteNames(string connectionString)

@@ -66,23 +66,41 @@ namespace MyImplementation
         {
             using (var contextDb = new MyDBdContext(_connectionString))
             {
-                try
+                if (upDate is false) 
                 {
-
-                    contextDb.UserEntities.Add(entity);
-                    contextDb.SaveChanges();
-                }
-                catch (DbUpdateException exception) //da rivedere lol
-                {
-                    var sqlException = exception.GetBaseException() as SqlException;
-                    if (sqlException.Number == 2627)
+                    try
                     {
-                        throw new NameAlreadyInUseException(entity.Id);
+
+                        contextDb.UserEntities.Add(entity);
+                        contextDb.SaveChanges();
+                    }
+                    catch (DbUpdateException exception) //da rivedere lol
+                    {
+                        var sqlException = exception.GetBaseException() as SqlException;
+                        if (sqlException.Number == 2627)
+                        {
+                            throw new NameAlreadyInUseException(entity.Id);
+
+                        }
+
+                        throw new InvalidOperationException();
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        contextDb.UserEntities.Attach(entity);
+                        contextDb.Entry(entity).State = EntityState.Modified;
+                        contextDb.SaveChanges();
 
                     }
-
-                    throw new InvalidOperationException();
+                    catch (DbUpdateException)
+                    {
+                        throw new InvalidOperationException();
+                    }
                 }
+
             }
         }
     }

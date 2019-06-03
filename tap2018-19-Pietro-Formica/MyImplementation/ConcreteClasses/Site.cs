@@ -56,7 +56,22 @@ namespace MyImplementation.ConcreteClasses
 
         public IEnumerable<IAuction> GetAuctions(bool onlyNotEnded)
         {
-            throw new NotImplementedException();
+            var auctionManager = new AuctionManager(_connectionString, Name);
+            var listAuctionEntities = auctionManager.SearchAllEntities();
+            if (onlyNotEnded is false)
+            {
+                return AuctionBuilder.NewAuctionBuilder()
+                    .SetAlarmClock(_alarmClock)
+                    .SetConnectionString(_connectionString)
+                    .BuildAll(listAuctionEntities);
+            }
+            var listEndedAuctionEntities = listAuctionEntities.Where(au => au.EndsOn >= _alarmClock.Now);
+            return AuctionBuilder.NewAuctionBuilder()
+                .SetAlarmClock(_alarmClock)
+                .SetConnectionString(_connectionString)
+                .BuildAll(listEndedAuctionEntities);
+
+
         }
 
         public ISession Login(string username, string password)

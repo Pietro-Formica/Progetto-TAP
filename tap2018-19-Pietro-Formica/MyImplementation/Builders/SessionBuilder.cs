@@ -52,10 +52,12 @@ namespace MyImplementation.Builders
             if(SessionEntity is null) throw new ArgumentNullException();
             if(ConnectionString is null) throw new ArgumentNullException();
             if(AlarmClock is null) throw new ArgumentNullException();
+            var userManager = new UserManager(ConnectionString,SessionEntity.SiteId);
+            var userEntity = userManager.SearchEntity(SessionEntity.Id);
             var user = UserBuilder.NewUserBuilder()
                 .SetConnectionString(ConnectionString)
                 .SetAlarmClock(AlarmClock)
-                .SetEntity(new UserManager(ConnectionString,SessionEntity.SiteId), SessionEntity.Id)
+                .SetEntity(userEntity)
                 .Build();
             var session = new Session(SessionEntity.Id, SessionEntity.ValidUntil, user, SessionEntity.SiteId, ConnectionString, AlarmClock);
             return session;

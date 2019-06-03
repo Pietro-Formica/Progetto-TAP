@@ -75,7 +75,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AuctionManager.cs" />
     <Compile Include="Bindings\InjectonModule.cs" />
+    <Compile Include="Builders\AuctionBuilder.cs" />
+    <Compile Include="Builders\EntityAuctionBuilder.cs" />
     <Compile Include="Builders\EntitySessionBuilder.cs" />
     <Compile Include="Builders\SessionBuilder.cs" />
     <Compile Include="Builders\SiteBuilder.cs" />
@@ -95,6 +98,7 @@
     <Compile Include="Extensions\UserBuilderExtension.cs" />
     <Compile Include="IBuilder.cs" />
     <Compile Include="IManager.cs" />
+    <Compile Include="MyDatabase\DataEntities\AuctionEntity.cs" />
     <Compile Include="MyDatabase\DataEntities\SessionEntity.cs" />
     <Compile Include="MyDatabase\DataEntities\UserEntity.cs" />
     <Compile Include="SessionManager.cs" />

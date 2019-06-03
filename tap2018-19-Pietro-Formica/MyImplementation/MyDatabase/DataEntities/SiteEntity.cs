@@ -11,6 +11,8 @@ namespace MyImplementation.MyDatabase.DataEntities
         public virtual ICollection<UserEntity> Users { get; set; }
         public virtual ICollection<SessionEntity> SessionEntities { get; set; }
 
+        public virtual ICollection<AuctionEntity> AuctionEntities { get; set; }
+
 
     }
 }

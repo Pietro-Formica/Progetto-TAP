@@ -1,4 +1,5 @@
 ﻿using System;
+using MyImplementation.Builders;
 using MyImplementation.MyDatabase.DataEntities;
 using TAP2018_19.AlarmClock.Interfaces;
 using TAP2018_19.AuctionSite.Interfaces;
@@ -41,7 +42,29 @@ namespace MyImplementation.ConcreteClasses
 
         public IAuction CreateAuction(string description, DateTime endsOn, double startingPrice)
         {
-            throw new NotImplementedException();
+            var userManager = new UserManager(_connectionString,_mySite);
+            var user = userManager.SearchEntity(User.Username);
+            if(user?.Session is null || !DataValid(_alarmClock,user.Session)) throw new InvalidOperationException();
+            var auctionEntity = EntityAuctionBuilder.NewBuilder(_alarmClock)
+                .SetDescription(description)
+                .SetEndsOn(endsOn)
+                .SetSiteId(_mySite)
+                .SetStartingPrice(startingPrice)
+                .SetUserSeller(user.Id)
+                .Build();
+            var auctionManager = new AuctionManager(_connectionString,_mySite);
+            auctionManager.SaveOnDb(auctionEntity);
+            var session = user.Session;
+            session.ValidUntil = _alarmClock.Now.AddSeconds(user.Site.SessionExpirationInSeconds);
+            ValidUntil = session.ValidUntil;
+            userManager.SaveOnDb(user,true);
+            var auction = AuctionBuilder.NewAuctionBuilder()
+                .SetAlarmClock(_alarmClock)
+                .SetConnectionString(_connectionString)
+                .SetAuctionEntity(auctionEntity)
+                .Build();
+
+            return auction;
         }
 
         public bool Equals(Session other)
@@ -67,7 +90,7 @@ namespace MyImplementation.ConcreteClasses
         public static bool DataValid(IAlarmClock alarmClock, SessionEntity sessionEntity) => DateTime.Compare(alarmClock.Now,sessionEntity.ValidUntil) < 0;
   
         public string Id { get; }
-        public DateTime ValidUntil { get; }
+        public DateTime ValidUntil { get; private set; }
         public IUser User { get; }
     }
 }

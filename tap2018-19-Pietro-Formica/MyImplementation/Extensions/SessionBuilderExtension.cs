@@ -20,10 +20,10 @@ namespace MyImplementation.Extensions
                 {
 
                     var query = (from site in context.SiteEntities
-                        where site.Id == siteName
+                        where site.ID == siteName
                         let sessions = site.SessionEntities
                         from session in sessions
-                        where session.Id == sessionId
+                        where session.ID == sessionId
                         select session).Single();
 
                     sessionBuilder.SetSessionEntity(query);
@@ -33,8 +33,8 @@ namespace MyImplementation.Extensions
 
                 if (userName != null && password != null)
                 {
-                    var sessionEntity = context.SiteEntities.Where(s => s.Id == siteName)
-                        .Select(u => u.Users).Single().SingleOrDefault(u => u.Id == userName && u.Password == password);
+                    var sessionEntity = context.SiteEntities.Where(s => s.ID == siteName)
+                        .Select(u => u.Users).Single().SingleOrDefault(u => u.ID == userName && u.Password == password);
                     if (sessionEntity is null)
                         return null;
                     sessionBuilder.SetSessionEntity(sessionEntity.Session);
@@ -44,18 +44,18 @@ namespace MyImplementation.Extensions
                 return sessionBuilder;
             }
         }*/
-        public static EntitySessionBuilder EntityUser(this EntitySessionBuilder entitySessionBuilder, string username, string password, string nameSite, string connectionString)
+/*        public static EntitySessionBuilder EntityUser(this EntitySessionBuilder entitySessionBuilder, string username, string password, string nameSite, string connectionString)
         {
             using (var context = new MyDBdContext(connectionString))
             {
-                entitySessionBuilder.SetEntityUser(context.SiteEntities.Where(s => s.Id == nameSite)
-                    .Select(u => u.Users).Single().SingleOrDefault(u => u.Id == username && u.Password == password));
+                entitySessionBuilder.SetEntityUser(context.SiteEntities.Where(s => s.ID == nameSite)
+                    .Select(u => u.Users).Single().SingleOrDefault(u => u.ID == username && u.Password == password));
                 return entitySessionBuilder;
             }
 
 
 
-        }
+        }*/
         public static IEnumerable<SessionEntity> GetAllSessions(this SessionBuilder sessionBuilder, string siteName)
         {
             using (var context = new MyDBdContext(sessionBuilder.ConnectionString))

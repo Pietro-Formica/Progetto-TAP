@@ -28,10 +28,10 @@ namespace MyImplementation.Builders
             return this;
         }
 
-        public UserBuilder SetEntity(IManager<UserEntity> manager, string key)
+        public UserBuilder SetEntity(UserEntity userEntity)
         {
-            var user = manager.SearchEntity(key);
-            UserEntity = user;
+
+            UserEntity = userEntity;
             return this;
         }
 
