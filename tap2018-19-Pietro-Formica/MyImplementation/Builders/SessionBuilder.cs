@@ -24,7 +24,7 @@ namespace MyImplementation.Builders
 
         public static SessionBuilder NewSessionBuilder() => new SessionBuilder();
 
-        public SessionBuilder SetSessionEntity(IManager<SessionEntity> manager, string key)
+        public SessionBuilder SetSessionEntity(IManager<SessionEntity,string> manager, string key)
         {
             var session = manager.SearchEntity(key);
             SessionEntity = session;

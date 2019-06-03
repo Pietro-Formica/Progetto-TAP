@@ -36,7 +36,7 @@ namespace MyImplementation.ConcreteClasses
 /*            var builder = SiteBuilder.NewSiteBuilder().SetConnectionString(connectionString);
             var list = builder.GetAllSiteName();
             return builder.BuildAll(list);*/
-            IManager<SiteEntity> manager = new SiteFactoryManager(connectionString);
+            IManager<SiteEntity,string> manager = new SiteFactoryManager(connectionString);
             var list = manager.SearchAllEntities().ToList();
             return YieldReturn(list);
 

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.Remoting.Messaging;
+using MyImplementation.Builders;
 using TAP2018_19.AlarmClock.Interfaces;
 using TAP2018_19.AuctionSite.Interfaces;
 
@@ -23,7 +25,14 @@ namespace MyImplementation.ConcreteClasses
 
         public IUser CurrentWinner()
         {
-            throw new NotImplementedException();
+           var auctionManager = new AuctionManager(_connectionString,_mySite);
+           var auction = auctionManager.SearchEntity(Id);
+           if (auction?.CurrentWinner is null) return null;
+           return UserBuilder.NewUserBuilder()
+               .SetAlarmClock(_alarmClock)
+               .SetConnectionString(_connectionString)
+               .SetEntity(auction.CurrentWinner)
+               .Build();
         }
 
         public double CurrentPrice()

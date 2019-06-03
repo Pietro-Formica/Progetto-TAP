@@ -12,7 +12,7 @@ using TAP2018_19.AuctionSite.Interfaces;
 namespace MyImplementation
 {
 
-    public class SessionManager : IManager<SessionEntity>
+    public class SessionManager : IManager<SessionEntity,string>
     {
         private readonly string _connectionString;
         private readonly string _mySite;

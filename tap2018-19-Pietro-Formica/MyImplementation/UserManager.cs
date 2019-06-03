@@ -15,7 +15,7 @@ using TAP2018_19.AuctionSite.Interfaces;
 namespace MyImplementation
 {
 
-    public class UserManager : IManager<UserEntity>
+    public class UserManager : IManager<UserEntity,string>
     {
         private readonly string _connectionString;
         private readonly string _mySite;

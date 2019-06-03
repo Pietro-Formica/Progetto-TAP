@@ -11,7 +11,7 @@ using TAP2018_19.AuctionSite.Interfaces;
 namespace MyImplementation
 {
 
-    public class AuctionManager : IManager<AuctionEntity>
+    public class AuctionManager : IManager<AuctionEntity,int>
     {
         private readonly string _connectionString;
         private readonly string _mySite;
@@ -20,9 +20,17 @@ namespace MyImplementation
             _connectionString = connectionString;
             _mySite = mySite;
         }
-        public AuctionEntity SearchEntity(string key)
+        public AuctionEntity SearchEntity(int key)
         {
-            throw new NotImplementedException();
+            using (var context = new MyDBdContext(_connectionString))
+            {
+                var auction = context.SiteEntities.Single(s => s.Id.Equals(_mySite))
+                    .AuctionEntities.SingleOrDefault(au => au.ID.Equals(key));
+                return auction;
+
+            }
+
+   
         }
         public IEnumerable<AuctionEntity> SearchAllEntities()
         {

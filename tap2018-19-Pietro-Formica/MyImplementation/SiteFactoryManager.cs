@@ -12,7 +12,7 @@ using TAP2018_19.AuctionSite.Interfaces;
 namespace MyImplementation
 {
 
-    public class SiteFactoryManager : IManager<SiteEntity>
+    public class SiteFactoryManager : IManager<SiteEntity,string>
     {
         private readonly string _connectionString;
         public SiteFactoryManager(string connectionString)

@@ -40,6 +40,9 @@ namespace MyImplementation.MyDatabase.Context
             modelBuilder.Entity<UserEntity>().HasMany(au => au.SellerAuctionEntities).WithRequired(u => u.Seller)
                 .HasForeignKey(u => new {u.SellerId, u.SiteID}).WillCascadeOnDelete(false);
 
+            modelBuilder.Entity<AuctionEntity>().HasOptional(us => us.CurrentWinner).WithMany(au => au.WinnerAuctionEntities)
+                .HasForeignKey(us => new {us.SiteID, us.WinnerId}).WillCascadeOnDelete(false);
+
 
 
         }
