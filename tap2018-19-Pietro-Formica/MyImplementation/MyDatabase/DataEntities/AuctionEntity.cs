@@ -19,6 +19,9 @@ namespace MyImplementation.MyDatabase.DataEntities
         public virtual SiteEntity Site { get; set; }
         public string Description { get; set; }
         public DateTime EndsOn { get; set; }
+        public double MaxOffer { get; set; }
+        public double CurrentOffer { get; set; }
+        public double StartingPrice { get; set; }
 
     }
 }

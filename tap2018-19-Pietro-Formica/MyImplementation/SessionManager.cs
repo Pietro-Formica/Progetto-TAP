@@ -32,6 +32,7 @@ namespace MyImplementation
                     .Select(site => site.SessionEntities)
                     .Single()
                     .SingleOrDefault(sessions => sessions.Id.Equals(key));
+                context.Entry(session).Reference(us => us.EntityUser).Load();
 
                 return session;
             }

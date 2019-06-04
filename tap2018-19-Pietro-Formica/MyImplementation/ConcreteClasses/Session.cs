@@ -11,13 +11,12 @@ namespace MyImplementation.ConcreteClasses
     {
         private readonly string _connectionString;
         private readonly IAlarmClock _alarmClock;
-        private readonly string _mySite;
         public Session(string id, DateTime validUntil, IUser user,string mySite, string connectionString, IAlarmClock alarmClock)
         {
             Id = id;
             ValidUntil = validUntil;
             User = user;
-            _mySite = mySite;
+            Site = mySite;
             _connectionString = connectionString;
             _alarmClock = alarmClock;
         }
@@ -26,14 +25,14 @@ namespace MyImplementation.ConcreteClasses
 
         public bool IsValid()
         {
-            var sessionManager = new SessionManager(_connectionString,_mySite);
+            var sessionManager = new SessionManager(_connectionString,Site);
             var sessionEntity = sessionManager.SearchEntity(Id);
             return (sessionEntity != null && DateTime.Compare(_alarmClock.Now, sessionEntity.ValidUntil) < 0);
         }
 
         public void Logout()
         {
-            var sessionManager = new SessionManager(_connectionString, _mySite);
+            var sessionManager = new SessionManager(_connectionString, Site);
             var sessionEntity = sessionManager.SearchEntity(Id) ?? throw new InvalidOperationException();
             if(!DataValid(_alarmClock,sessionEntity)) throw new InvalidOperationException();
             sessionEntity.ValidUntil = sessionEntity.ValidUntil.AddDays(-20);
@@ -42,17 +41,17 @@ namespace MyImplementation.ConcreteClasses
 
         public IAuction CreateAuction(string description, DateTime endsOn, double startingPrice)
         {
-            var userManager = new UserManager(_connectionString,_mySite);
+            var userManager = new UserManager(_connectionString,Site);
             var user = userManager.SearchEntity(User.Username);
             if(user?.Session is null || !DataValid(_alarmClock,user.Session)) throw new InvalidOperationException();
             var auctionEntity = EntityAuctionBuilder.NewBuilder(_alarmClock)
                 .SetDescription(description)
                 .SetEndsOn(endsOn)
-                .SetSiteId(_mySite)
+                .SetSiteId(Site)
                 .SetStartingPrice(startingPrice)
                 .SetUserSeller(user.Id)
                 .Build();
-            var auctionManager = new AuctionManager(_connectionString,_mySite);
+            var auctionManager = new AuctionManager(_connectionString,Site);
             auctionManager.SaveOnDb(auctionEntity);
             var session = user.Session;
             session.ValidUntil = _alarmClock.Now.AddSeconds(user.Site.SessionExpirationInSeconds);
@@ -90,7 +89,8 @@ namespace MyImplementation.ConcreteClasses
         public static bool DataValid(IAlarmClock alarmClock, SessionEntity sessionEntity) => DateTime.Compare(alarmClock.Now,sessionEntity.ValidUntil) < 0;
   
         public string Id { get; }
-        public DateTime ValidUntil { get; private set; }
+        public DateTime ValidUntil { get; set; }
         public IUser User { get; }
+        public string Site { get; }
     }
 }

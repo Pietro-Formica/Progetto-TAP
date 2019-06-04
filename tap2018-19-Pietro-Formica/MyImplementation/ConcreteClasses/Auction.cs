@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Runtime.Remoting.Messaging;
+using System.Text;
 using MyImplementation.Builders;
+using MyImplementation.MyDatabase.DataEntities;
+using MyImplementation.ValidateArguments;
 using TAP2018_19.AlarmClock.Interfaces;
 using TAP2018_19.AuctionSite.Interfaces;
 
@@ -12,6 +15,7 @@ namespace MyImplementation.ConcreteClasses
         private readonly string _connectionString;
         private readonly IAlarmClock _alarmClock;
         private readonly string _mySite;
+        private double _maxOffer;
         public Auction(int id, IUser seller, string description, DateTime endsOn, string connectionString, IAlarmClock alarmClock, string mySite)
         {
             Id = id;
@@ -47,7 +51,57 @@ namespace MyImplementation.ConcreteClasses
 
         public bool BidOnAuction(ISession session, double offer)
         {
-            throw new NotImplementedException();
+            Control.CheckNegativeOffer(offer);
+            var realSession = session as Session;
+            if (realSession is null) throw new ArgumentNullException();
+            var auctionManager = new AuctionManager(_connectionString, _mySite);
+            var auction = auctionManager.SearchEntity(Id);
+            if(auction is null || auction.EndsOn <= _alarmClock.Now) throw new InvalidOperationException();
+            if(!session.IsValid()) throw new ArgumentException();
+            var sessionManager = new SessionManager(_connectionString,realSession.Site);
+            var sessionEntity = sessionManager.SearchEntity(realSession.Id);
+            var bidder = sessionEntity.EntityUser;
+            var seller = auction.Seller;
+            if(bidder is null || seller is null) throw new InvalidOperationException();
+            if (bidder.Id.Equals(seller.Id) || !bidder.SiteId.Equals(seller.SiteId)) throw new ArgumentException();
+            sessionEntity.ValidUntil = _alarmClock.Now.AddSeconds(auction.Site.SessionExpirationInSeconds);
+            realSession.ValidUntil = sessionEntity.ValidUntil;
+            sessionManager.SaveOnDb(sessionEntity,true);
+            if (auction.CurrentWinner is null)
+            {
+                if (offer < auction.CurrentOffer) return false;
+                auction.MaxOffer = offer;
+                auction.WinnerId = bidder.Id;
+                auctionManager.SaveOnDb(auction,true);
+                return true;
+            }
+
+            if (auction.CurrentWinner.Equals(bidder))
+            {
+                if (offer <= auction.MaxOffer + auction.Site.MinimumBidIncrement) return false;
+                auction.MaxOffer = offer;
+                auctionManager.SaveOnDb(auction, true);
+                return true;
+            }
+
+            if (offer < auction.CurrentOffer + auction.Site.MinimumBidIncrement) return false;
+            if (offer > auction.MaxOffer)
+            {
+                auction.CurrentOffer = Math.Min(offer, auction.MaxOffer + auction.Site.MinimumBidIncrement);
+                auction.MaxOffer = offer;
+                auction.WinnerId = bidder.Id;
+                auctionManager.SaveOnDb(auction, true);
+                return true;
+            }
+
+            if (auction.MaxOffer > offer)
+            {
+                auction.CurrentOffer = Math.Min(auction.MaxOffer, offer + auction.Site.MinimumBidIncrement);
+                auctionManager.SaveOnDb(auction, true);
+                return true;
+            }
+
+            return false;
         }
 
         public bool Equals(Auction other)

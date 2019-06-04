@@ -8,13 +8,12 @@ namespace MyImplementation.ConcreteClasses
 
     public class User : IUser, IEquatable<User>
     {
-        private readonly string _site;
         private readonly string _connectionString;
         private readonly IAlarmClock _alarmClock;
         public User(string username, string site, string connectionString, IAlarmClock alarmClock)
         {
             Username = username;
-            _site = site;
+            Site = site;
             _connectionString = connectionString;
             _alarmClock = alarmClock;
         }
@@ -33,7 +32,7 @@ namespace MyImplementation.ConcreteClasses
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return string.Equals(_site, other._site) && string.Equals(Username, other.Username);
+            return string.Equals(Site, other.Site) && string.Equals(Username, other.Username);
         }
 
         public override bool Equals(object obj)
@@ -48,10 +47,11 @@ namespace MyImplementation.ConcreteClasses
         {
             unchecked
             {
-                return ((_site != null ? _site.GetHashCode() : 0) * 397) ^ (Username != null ? Username.GetHashCode() : 0);
+                return ((Site != null ? Site.GetHashCode() : 0) * 397) ^ (Username != null ? Username.GetHashCode() : 0);
             }
         }
         public string Username { get; }
+        public string Site { get; }
 
     }
     

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Text;
@@ -26,6 +27,7 @@ namespace MyImplementation
             {
                 var auction = context.SiteEntities.Single(s => s.Id.Equals(_mySite))
                     .AuctionEntities.SingleOrDefault(au => au.ID.Equals(key));
+                context.Entry(auction).Reference(us => us.Seller).Load();
                 return auction;
 
             }
@@ -52,15 +54,34 @@ namespace MyImplementation
         {
             using (var context = new MyDBdContext(_connectionString))
             {
-                context.AuctionEntities.Add(entity);
-                try
+                if (upDate is false)
                 {
-                    context.SaveChanges();
+                    context.AuctionEntities.Add(entity);
+                    try
+                    {
+                        context.SaveChanges();
+                    }
+                    catch (DbUpdateException exception) //da rivedere lol
+                    {
+                        throw new NameAlreadyInUseException(entity.Description, "booo", exception.InnerException);
+
+                    }
                 }
-                catch (DbUpdateException exception)//da rivedere lol
+                else
                 {
-                    throw new NameAlreadyInUseException(entity.Description, "booo", exception.InnerException);
+                    try
+                    {
+                        context.AuctionEntities.Attach(entity);
+                        context.Entry(entity).State = EntityState.Modified;
+                        context.SaveChanges();
+
+                    }
+                    catch (DbUpdateException)
+                    {
+                        throw new InvalidOperationException();
+                    }
                 }
+
             }
         }
     }

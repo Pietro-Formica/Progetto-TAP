@@ -67,7 +67,10 @@ namespace MyImplementation.Builders
                 SellerId = _userId,
                 SiteID = _siteId,
                 Description = _description,
-                EndsOn = _endsOn
+                EndsOn = _endsOn,
+                StartingPrice = _startingPrice,
+                CurrentOffer = _startingPrice
+                
             };
             return auctionEntity;
         }

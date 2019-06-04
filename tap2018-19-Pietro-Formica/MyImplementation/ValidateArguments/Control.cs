@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Data.Entity;
 using TAP2018_19.AlarmClock.Interfaces;
 using TAP2018_19.AuctionSite.Interfaces;
+using ArgumentOutOfRangeException = System.ArgumentOutOfRangeException;
 
 namespace MyImplementation.ValidateArguments
 {
@@ -53,6 +54,10 @@ namespace MyImplementation.ValidateArguments
             if (connectionString is null) throw new ArgumentNullException();
 
             if (!Database.Exists(connectionString)) throw new UnavailableDbException();
+        }
+        public static void CheckNegativeOffer(double offer)
+        {
+            if(offer < 0) throw new ArgumentOutOfRangeException();
         }
     }
 
