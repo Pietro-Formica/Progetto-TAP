@@ -27,7 +27,9 @@ namespace MyImplementation
             {
                 var auction = context.SiteEntities.Single(s => s.Id.Equals(_mySite))
                     .AuctionEntities.SingleOrDefault(au => au.ID.Equals(key));
+                if (auction is null) return null;
                 context.Entry(auction).Reference(us => us.Seller).Load();
+                context.Entry(auction).Reference(au => au.CurrentWinner).Load();
                 return auction;
 
             }
@@ -48,7 +50,19 @@ namespace MyImplementation
         }
         public void DeleteEntity(AuctionEntity entity)
         {
-            throw new NotImplementedException();
+            using (var context = new MyDBdContext(_connectionString))
+            {
+                try
+                {
+                    context.AuctionEntities.Attach(entity);
+                    context.AuctionEntities.Remove(entity);
+                    context.SaveChanges();
+                }
+                catch (DbUpdateException)
+                {
+                    throw new InvalidOperationException();
+                }
+            }
         }
         public void SaveOnDb(AuctionEntity entity, bool upDate = false)
         {
@@ -71,9 +85,32 @@ namespace MyImplementation
                 {
                     try
                     {
-                        context.AuctionEntities.Attach(entity);
-                        context.Entry(entity).State = EntityState.Modified;
-                        context.SaveChanges();
+                        if (entity.CurrentWinner != null && entity.FutureWinner != null)
+                        {
+                            var siteId = entity.SiteID;
+
+                            context.AuctionEntities.Attach(entity);
+
+                            context.Entry(entity).Reference(us => us.CurrentWinner).CurrentValue = null;
+                            entity.WinnerId = entity.FutureWinner;
+                            context.Entry(entity).Property(us => us.WinnerId).CurrentValue = entity.FutureWinner;
+                            entity.FutureWinner = null;
+                            context.Entry(entity).Property(s => s.SiteID).CurrentValue = siteId;
+                           // context.Entry(entity).Property(cp => cp.CurrentOffer).CurrentValue = entity.CurrentOffer;
+                            context.Entry(entity).State = EntityState.Modified;
+                            //context.Entry(entity).Property(us => us.FutureWinner).IsModified = true;
+                            context.SaveChanges();
+
+                        }
+                        else
+                        {
+                            context.AuctionEntities.Attach(entity);
+                            context.Entry(entity).State = EntityState.Modified;
+                            context.SaveChanges();
+
+                        }
+ 
+
 
                     }
                     catch (DbUpdateException)

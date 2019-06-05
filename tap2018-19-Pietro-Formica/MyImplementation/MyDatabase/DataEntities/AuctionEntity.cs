@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,8 @@ namespace MyImplementation.MyDatabase.DataEntities
         public double MaxOffer { get; set; }
         public double CurrentOffer { get; set; }
         public double StartingPrice { get; set; }
+        [NotMapped]
+        public string FutureWinner { get; set; }
 
     }
 }

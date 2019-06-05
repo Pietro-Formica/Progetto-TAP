@@ -41,12 +41,16 @@ namespace MyImplementation.ConcreteClasses
 
         public double CurrentPrice()
         {
-            throw new NotImplementedException();
+            var auctionManager = new AuctionManager(_connectionString, _mySite);
+            return auctionManager.SearchEntity(Id).CurrentOffer;
         }
 
         public void Delete()
         {
-            throw new NotImplementedException();
+            var auctionManager = new AuctionManager(_connectionString,_mySite);
+            var auctionEntity = auctionManager.SearchEntity(Id);
+            if(auctionEntity is null) throw new InvalidOperationException();
+            auctionManager.DeleteEntity(auctionEntity);
         }
 
         public bool BidOnAuction(ISession session, double offer)
@@ -89,7 +93,7 @@ namespace MyImplementation.ConcreteClasses
             {
                 auction.CurrentOffer = Math.Min(offer, auction.MaxOffer + auction.Site.MinimumBidIncrement);
                 auction.MaxOffer = offer;
-                auction.WinnerId = bidder.Id;
+                auction.FutureWinner = bidder.Id;
                 auctionManager.SaveOnDb(auction, true);
                 return true;
             }
