@@ -41,7 +41,13 @@ namespace MyImplementation
                 context.Entry(userEntity)
                     .Reference(session => session.Session)
                     .Load();
-               
+                context.Entry(userEntity)
+                    .Collection(au => au.WinnerAuctionEntities)
+                    .Load();
+                context.Entry(userEntity)
+                    .Collection(au => au.SellerAuctionEntities)
+                    .Load();
+
                 return userEntity;
 
             }
@@ -60,7 +66,19 @@ namespace MyImplementation
         }
         public void DeleteEntity(UserEntity entity)
         {
-            throw new NotImplementedException();
+            using (var context = new MyDBdContext(_connectionString))
+            {
+                try
+                {
+                    context.UserEntities.Attach(entity);
+                    context.UserEntities.Remove(entity);
+                    context.SaveChanges();
+                }
+                catch (DbUpdateException)
+                {
+                    throw new InvalidOperationException();
+                }
+            }
         }
         public void SaveOnDb(UserEntity entity, bool upDate = false)
         {

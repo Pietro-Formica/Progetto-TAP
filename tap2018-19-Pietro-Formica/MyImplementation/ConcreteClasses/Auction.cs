@@ -15,7 +15,6 @@ namespace MyImplementation.ConcreteClasses
         private readonly string _connectionString;
         private readonly IAlarmClock _alarmClock;
         private readonly string _mySite;
-        private double _maxOffer;
         public Auction(int id, IUser seller, string description, DateTime endsOn, string connectionString, IAlarmClock alarmClock, string mySite)
         {
             Id = id;
@@ -80,7 +79,9 @@ namespace MyImplementation.ConcreteClasses
                 return true;
             }
 
-            if (auction.CurrentWinner.Equals(bidder))
+
+
+            if (auction.CurrentWinner.Id.Equals(bidder.Id) && auction.CurrentWinner.SiteId.Equals(bidder.SiteId))
             {
                 if (offer <= auction.MaxOffer + auction.Site.MinimumBidIncrement) return false;
                 auction.MaxOffer = offer;

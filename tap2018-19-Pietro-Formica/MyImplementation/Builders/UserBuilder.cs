@@ -46,7 +46,7 @@ namespace MyImplementation.Builders
             if (UserEntity is null) throw new ArgumentNullException();
             if (ConnectionString is null) throw new ArgumentNullException();
             if (AlarmClock is null) throw new ArgumentNullException();
-            var user = new User(UserEntity.Id, UserEntity.SiteId, ConnectionString, AlarmClock);
+            var user = new User(UserEntity.Id, UserEntity.SiteId, ConnectionString, AlarmClock,UserEntity.SiteId);
             return user;
         }
 
