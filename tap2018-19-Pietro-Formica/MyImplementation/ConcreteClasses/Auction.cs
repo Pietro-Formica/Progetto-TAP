@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
 using MyImplementation.Builders;
@@ -75,6 +76,7 @@ namespace MyImplementation.ConcreteClasses
                 if (offer < auction.CurrentOffer) return false;
                 auction.MaxOffer = offer;
                 auction.WinnerId = bidder.Id;
+                auction.WinnerSiteId = bidder.SiteId;
                 auctionManager.SaveOnDb(auction,true);
                 return true;
             }
@@ -92,10 +94,17 @@ namespace MyImplementation.ConcreteClasses
             if (offer < auction.CurrentOffer + auction.Site.MinimumBidIncrement) return false;
             if (offer > auction.MaxOffer)
             {
-                auction.CurrentOffer = Math.Min(offer, auction.MaxOffer + auction.Site.MinimumBidIncrement);
-                auction.MaxOffer = offer;
-                auction.FutureWinner = bidder.Id;
-                auctionManager.SaveOnDb(auction, true);
+                var userManager = new UserManager(_connectionString,_mySite);
+                var userEntity = userManager.SearchEntity(auction.WinnerId);
+                userEntity.WinnerAuctionId = Id;
+                userManager.SaveOnDb(userEntity,true);
+                auction.CurrentWinner.WinnerAuctionId = Id;
+                var auction1 = auctionManager.SearchEntity(Id);
+                auction1.CurrentOffer = Math.Min(offer, auction.MaxOffer + auction.Site.MinimumBidIncrement);
+                auction1.MaxOffer = offer;
+                auction1.WinnerId = bidder.Id;
+                auction1.WinnerSiteId = bidder.SiteId;
+                auctionManager.SaveOnDb(auction1, true);
                 return true;
             }
 

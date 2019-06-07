@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyImplementation.MyDatabase.DataEntities
 {
@@ -13,6 +14,8 @@ namespace MyImplementation.MyDatabase.DataEntities
         public  virtual SessionEntity Session { get; set; }
         public virtual ICollection<AuctionEntity> SellerAuctionEntities { get; set; }
         public virtual ICollection<AuctionEntity> WinnerAuctionEntities { get; set; }
+        [NotMapped]
+        public int? WinnerAuctionId { get; set; }
 
 
     }

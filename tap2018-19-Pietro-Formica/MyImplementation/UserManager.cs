@@ -5,6 +5,7 @@ using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using MyImplementation.MyDatabase.Context;
@@ -108,7 +109,16 @@ namespace MyImplementation
                 {
                     try
                     {
+                        
                         contextDb.UserEntities.Attach(entity);
+                        contextDb.Entry(entity).Collection( au => au.WinnerAuctionEntities).Load();
+                        if (entity.WinnerAuctionId != null)
+                        {
+                            var auction = contextDb.AuctionEntities.Find(entity.WinnerAuctionId, _mySite);
+                            contextDb.Entry(entity).Collection(au => au.WinnerAuctionEntities).CurrentValue.Remove(auction);
+                            entity.WinnerAuctionId = null;
+                            contextDb.Entry(auction).State = EntityState.Modified;
+                        }
                         contextDb.Entry(entity).State = EntityState.Modified;
                         contextDb.SaveChanges();
 

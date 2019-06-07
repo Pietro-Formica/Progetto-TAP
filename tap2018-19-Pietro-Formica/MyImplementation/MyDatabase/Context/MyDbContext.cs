@@ -28,6 +28,7 @@ namespace MyImplementation.MyDatabase.Context
             modelBuilder.Entity<SiteEntity>().HasKey(x => x.Id);
             modelBuilder.Entity<UserEntity>().HasKey(x => new {x.Id, x.SiteId});                                       
             modelBuilder.Entity<SessionEntity>().HasKey(x => new{x.Id,x.SiteId});
+            modelBuilder.Entity<AuctionEntity>().HasKey(x => new {x.ID, x.SiteID});
 
             modelBuilder.Entity<UserEntity>().HasRequired(s => s.Site).WithMany(x => x.Users).HasForeignKey(k => k.SiteId);
 
@@ -41,7 +42,7 @@ namespace MyImplementation.MyDatabase.Context
                 .HasForeignKey(u => new {u.SellerId, u.SiteID}).WillCascadeOnDelete(false);
 
             modelBuilder.Entity<AuctionEntity>().HasOptional(us => us.CurrentWinner).WithMany(au => au.WinnerAuctionEntities)
-                .HasForeignKey(us => new { us.WinnerId,us.SiteID} ).WillCascadeOnDelete(false);
+                .HasForeignKey(us => new { us.WinnerId,us.WinnerSiteId} ).WillCascadeOnDelete(false);
 
 
 

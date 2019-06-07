@@ -15,6 +15,7 @@ namespace MyImplementation.MyDatabase.DataEntities
         public string SellerId { get; set; }
         public  UserEntity Seller { get; set; }
         public string WinnerId { get; set; }
+        public string WinnerSiteId { get; set; }
         public UserEntity  CurrentWinner { get; set; }
         public string SiteID { get; set; }
         public virtual SiteEntity Site { get; set; }
@@ -23,8 +24,7 @@ namespace MyImplementation.MyDatabase.DataEntities
         public double MaxOffer { get; set; }
         public double CurrentOffer { get; set; }
         public double StartingPrice { get; set; }
-        [NotMapped]
-        public string FutureWinner { get; set; }
+
 
     }
 }

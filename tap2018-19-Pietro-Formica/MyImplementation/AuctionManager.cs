@@ -85,33 +85,8 @@ namespace MyImplementation
                 {
                     try
                     {
-                        if (entity.CurrentWinner != null && entity.FutureWinner != null)
-                        {
-                            var siteId = entity.SiteID;
-
-                            context.AuctionEntities.Attach(entity);
-
-                            context.Entry(entity).Reference(us => us.CurrentWinner).CurrentValue = null;
-                            entity.WinnerId = entity.FutureWinner;
-                            context.Entry(entity).Property(us => us.WinnerId).CurrentValue = entity.FutureWinner;
-                            entity.FutureWinner = null;
-                            context.Entry(entity).Property(s => s.SiteID).CurrentValue = siteId;
-                           // context.Entry(entity).Property(cp => cp.CurrentOffer).CurrentValue = entity.CurrentOffer;
-                            context.Entry(entity).State = EntityState.Modified;
-                            //context.Entry(entity).Property(us => us.FutureWinner).IsModified = true;
-                            context.SaveChanges();
-
-                        }
-                        else
-                        {
-                            context.AuctionEntities.Attach(entity);
-                            context.Entry(entity).State = EntityState.Modified;
-                            context.SaveChanges();
-
-                        }
- 
-
-
+                        context.Entry(entity).State = EntityState.Modified;
+                        context.SaveChanges();
                     }
                     catch (DbUpdateException)
                     {

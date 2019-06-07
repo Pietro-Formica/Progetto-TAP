@@ -17,6 +17,7 @@ namespace TAP2018_19.AuctionSite.Interfaces.Tests {
 #pragma warning restore CS0246 // Il nome di tipo o di spazio dei nomi 'Mock<>' non è stato trovato. Probabilmente manca una direttiva using o un riferimento all'assembly.
 #pragma warning disable CS0246 // Il nome di tipo o di spazio dei nomi 'IUser' non è stato trovato. Probabilmente manca una direttiva using o un riferimento all'assembly.
         protected IUser User;
+        protected ISession Session;
 #pragma warning restore CS0246 // Il nome di tipo o di spazio dei nomi 'IUser' non è stato trovato. Probabilmente manca una direttiva using o un riferimento all'assembly.
         protected const string UserName = "My Dear Friend";
         protected const string Pw = "f86d 78ds6^^^55";
@@ -63,6 +64,8 @@ namespace TAP2018_19.AuctionSite.Interfaces.Tests {
             Site = CreateAndLoadEmptySite(-5, "site for user tests", 360, 7, out AlarmClock);
             Site.CreateUser(UserName, Pw);
             User = Site.GetUsers().SingleOrDefault(u => u.Username == UserName);
+            Session = Site.Login(UserName, Pw);
+
             Assert.That(User, Is.Not.Null, "Set up should be successful");
         }
 
@@ -78,6 +81,29 @@ namespace TAP2018_19.AuctionSite.Interfaces.Tests {
             User.Delete();
             var survived = Site.GetUsers().Any(u => u.Username == UserName);
             Assert.That(!survived);
+        }
+        [Test]
+        public void DeleteUser_WinnnerInAuction_null()
+        {
+            var userSession = Site.Login(UserName, Pw);
+            const string sellerName = "very lucky seller";
+            const string sellerPw = "seller's password";
+            Site.CreateUser(sellerName, sellerPw);
+            var seller = Site.GetUsers().SingleOrDefault(u => u.Username == sellerName);
+            var sellerSession = Site.Login(sellerName, sellerPw);
+            var randomGen = new Random();
+            var startingPrice = randomGen.NextDouble() * 100 + 1;
+            var auction = sellerSession.CreateAuction($"The th auction for {sellerName}",
+                AlarmClock.Object.Now.AddDays(1), startingPrice);
+            auction.BidOnAuction(userSession, startingPrice * 2);
+            var user = Site.GetUsers().SingleOrDefault(u => u.Username == UserName);
+            var now = AlarmClock.Object.Now;
+            AlarmClock.Setup(ac => ac.Now).Returns(now.AddHours(25));
+            Site = siteFactory.LoadSite(connectionString, Site.Name, AlarmClock.Object); //needed to refresh time
+            user.Delete();
+            var auction1 = Site.GetAuctions(false).SingleOrDefault(x => x.Id == auction.Id);
+            var usr = auction1.CurrentWinner();
+            Assert.That(usr,Is.Null);
         }
 
 #pragma warning disable CS0246 // Il nome di tipo o di spazio dei nomi 'TestAttribute' non è stato trovato. Probabilmente manca una direttiva using o un riferimento all'assembly.
@@ -135,6 +161,15 @@ namespace TAP2018_19.AuctionSite.Interfaces.Tests {
             SetNowToFutureTime(3650 * 24 * 60 * 60 + 1, AlarmClock);
             var wonAuctions = User.WonAuctions();
             Assert.That(auctions, Is.EquivalentTo(wonAuctions));
+        }
+        protected IUser CreateAndLogUser(string username, out ISession session, ISite site)
+        {
+#pragma warning restore CS0246 // Il nome di tipo o di spazio dei nomi 'ISite' non è stato trovato. Probabilmente manca una direttiva using o un riferimento all'assembly.
+#pragma warning restore CS0246 // Il nome di tipo o di spazio dei nomi 'ISession' non è stato trovato. Probabilmente manca una direttiva using o un riferimento all'assembly.
+#pragma warning restore CS0246 // Il nome di tipo o di spazio dei nomi 'IUser' non è stato trovato. Probabilmente manca una direttiva using o un riferimento all'assembly.
+            site.CreateUser(username, username);
+            session = site.Login(username, username);
+            return site.GetUsers().FirstOrDefault(u => u.Username == username);
         }
     }
 }
