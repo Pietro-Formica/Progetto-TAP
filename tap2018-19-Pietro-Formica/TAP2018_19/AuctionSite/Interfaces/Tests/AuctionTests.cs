@@ -297,6 +297,37 @@ namespace TAP2018_19.AuctionSite.Interfaces.Tests {
             Assert.That(() => TheAuction.Delete(), Throws.TypeOf<InvalidOperationException>());
         }
 
+        [Test]
+        public void Delete_Site_Auction_Throws()
+        {
+            Site.Delete();
+            Assert.That(() => TheAuction.Delete(), Throws.TypeOf<InvalidOperationException>());
+
+        }
+
+        [Test]
+        public void Delete_Site_Auction_BinOnAuction_Throws()
+        {
+            Site.Delete();
+            Assert.That(() => TheAuction.BidOnAuction(Bidder1Session, 10), Throws.TypeOf<InvalidOperationException>());
+
+        }
+
+        [Test]
+        public void Delete_Site_Auction_CurrentWinner_Throws()
+        {
+            Site.Delete();
+            Assert.That(() => TheAuction.CurrentWinner(), Throws.TypeOf<InvalidOperationException>());
+
+        }
+
+        [Test]
+        public void Delete_Site_Auction_CurrentPrice_Throws()
+        {
+            Site.Delete();
+            Assert.That(() => TheAuction.CurrentPrice(), Throws.TypeOf<InvalidOperationException>());
+
+        }
 #pragma warning disable CS0246 // Il nome di tipo o di spazio dei nomi 'TestAttribute' non è stato trovato. Probabilmente manca una direttiva using o un riferimento all'assembly.
 #pragma warning disable CS0246 // Il nome di tipo o di spazio dei nomi 'Test' non è stato trovato. Probabilmente manca una direttiva using o un riferimento all'assembly.
         /// <summary>

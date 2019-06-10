@@ -25,7 +25,8 @@ namespace MyImplementation.ConcreteClasses
         public IEnumerable<IAuction> WonAuctions()
         {
             var userManager = new UserManager(_connectionString,_mySite);
-            var listAuctionWin = userManager.SearchEntity(Username).WinnerAuctionEntities.Where(wau => wau.EndsOn < _alarmClock.Now);
+            var user = userManager.SearchEntity(Username) ?? throw new InvalidOperationException();
+            var listAuctionWin = user.WinnerAuctionEntities.Where(wau => wau.EndsOn < _alarmClock.Now);
             if(listAuctionWin is null) throw new InvalidOperationException();
             return AuctionBuilder.NewAuctionBuilder()
                 .SetAlarmClock(_alarmClock)

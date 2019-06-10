@@ -89,6 +89,28 @@ namespace TAP2018_19.AuctionSite.Interfaces.Tests {
             Assert.That(() => Site.GetUsers(), Throws.TypeOf<InvalidOperationException>());
         }
 
+        [Test]
+        public void GetSessions_OnDeletedObject_Throws()
+        {
+            Site.Delete();
+            Assert.That(() => Site.GetSessions(), Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void GetSessions_OnEmptyList()
+        {
+            var list = Site.GetSessions();
+            Assert.That(list, Is.Empty);
+        }
+
+        [Test]
+        public void GetAuction_OnEmptyList()
+        {
+            var list = Site.GetAuctions(false);
+            Assert.That(list, Is.Empty);
+        }
+
+ 
 #pragma warning disable CS0246 // Il nome di tipo o di spazio dei nomi 'TestAttribute' non è stato trovato. Probabilmente manca una direttiva using o un riferimento all'assembly.
 #pragma warning disable CS0246 // Il nome di tipo o di spazio dei nomi 'Test' non è stato trovato. Probabilmente manca una direttiva using o un riferimento all'assembly.
         /// <summary>

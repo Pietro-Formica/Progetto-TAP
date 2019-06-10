@@ -118,11 +118,33 @@ namespace TAP2018_19.AuctionSite.Interfaces.Tests {
             User.Delete();
             Assert.That(() => User.Delete(), Throws.TypeOf<InvalidOperationException>());
         }
+        [Test]
+        public void Delete_WonAuction_Throws()
+        {
+            User.Delete();
+            Assert.That(() => User.WonAuctions(), Throws.TypeOf<InvalidOperationException>());
+
+        }
+
+        [Test]
+        public void Delete_Site_Users_Throws()
+        {
+            Site.Delete();
+            Assert.That(() => User.Delete(), Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void Delete_Site_Users_WonAuction_Throws()
+        {
+            Site.Delete();
+            Assert.That(() => User.WonAuctions(), Throws.TypeOf<InvalidOperationException>());
+        }
+
 #pragma warning disable CS0246 // Il nome di tipo o di spazio dei nomi 'TestAttribute' non è stato trovato. Probabilmente manca una direttiva using o un riferimento all'assembly.
 #pragma warning disable CS0246 // Il nome di tipo o di spazio dei nomi 'Test' non è stato trovato. Probabilmente manca una direttiva using o un riferimento all'assembly.
-/// <summary>
-/// Verify that a newly created use has no won auctions
-/// </summary>
+        /// <summary>
+        /// Verify that a newly created use has no won auctions
+        /// </summary>
         [Test]
 #pragma warning restore CS0246 // Il nome di tipo o di spazio dei nomi 'Test' non è stato trovato. Probabilmente manca una direttiva using o un riferimento all'assembly.
 #pragma warning restore CS0246 // Il nome di tipo o di spazio dei nomi 'TestAttribute' non è stato trovato. Probabilmente manca una direttiva using o un riferimento all'assembly.
