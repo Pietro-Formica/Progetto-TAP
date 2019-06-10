@@ -16,6 +16,9 @@ namespace MyImplementation.ConcreteClasses
         private readonly string _connectionString;
         private readonly IAlarmClock _alarmClock;
         private readonly string _mySite;
+        private readonly IManager<AuctionEntity, int> _auctionManager;
+        private readonly IManager<SessionEntity, string> _sessionManager;
+        private readonly IManager<UserEntity, string> _userManager;
         public Auction(int id, IUser seller, string description, DateTime endsOn, string connectionString, IAlarmClock alarmClock, string mySite)
         {
             Id = id;
@@ -25,12 +28,14 @@ namespace MyImplementation.ConcreteClasses
             _connectionString = connectionString;
             _alarmClock = alarmClock;
             _mySite = mySite;
+            _auctionManager = new AuctionManager(connectionString, mySite);
+            _sessionManager = new SessionManager(connectionString, mySite);
+            _userManager = new UserManager(connectionString, mySite);
         }
 
         public IUser CurrentWinner()
         {
-           var auctionManager = new AuctionManager(_connectionString,_mySite);
-           var auction = auctionManager.SearchEntity(Id);
+           var auction = _auctionManager.SearchEntity(Id);
            if (auction?.CurrentWinner is null) return null;
            return UserBuilder.NewUserBuilder()
                .SetAlarmClock(_alarmClock)
@@ -41,16 +46,16 @@ namespace MyImplementation.ConcreteClasses
 
         public double CurrentPrice()
         {
-            var auctionManager = new AuctionManager(_connectionString, _mySite);
-            return auctionManager.SearchEntity(Id).CurrentOffer;
+
+            return _auctionManager.SearchEntity(Id).CurrentOffer;
         }
 
         public void Delete()
         {
-            var auctionManager = new AuctionManager(_connectionString,_mySite);
-            var auctionEntity = auctionManager.SearchEntity(Id);
+
+            var auctionEntity = _auctionManager.SearchEntity(Id);
             if(auctionEntity is null) throw new InvalidOperationException();
-            auctionManager.DeleteEntity(auctionEntity);
+            _auctionManager.DeleteEntity(auctionEntity);
         }
 
         public bool BidOnAuction(ISession session, double offer)
@@ -58,26 +63,25 @@ namespace MyImplementation.ConcreteClasses
             Control.CheckNegativeOffer(offer);
             var realSession = session as Session;
             if (realSession is null) throw new ArgumentNullException();
-            var auctionManager = new AuctionManager(_connectionString, _mySite);
-            var auction = auctionManager.SearchEntity(Id);
+            var auction = _auctionManager.SearchEntity(Id);
             if(auction is null || auction.EndsOn <= _alarmClock.Now) throw new InvalidOperationException();
             if(!session.IsValid()) throw new ArgumentException();
-            var sessionManager = new SessionManager(_connectionString,realSession.Site);
-            var sessionEntity = sessionManager.SearchEntity(realSession.Id);
+            var sessionEntity = _sessionManager.SearchEntity(realSession.Id);
             var bidder = sessionEntity.EntityUser;
             var seller = auction.Seller;
             if(bidder is null || seller is null) throw new InvalidOperationException();
             if (bidder.Id.Equals(seller.Id) || !bidder.SiteId.Equals(seller.SiteId)) throw new ArgumentException();
             sessionEntity.ValidUntil = _alarmClock.Now.AddSeconds(auction.Site.SessionExpirationInSeconds);
             realSession.ValidUntil = sessionEntity.ValidUntil;
-            sessionManager.SaveOnDb(sessionEntity,true);
+            _sessionManager.SaveOnDb(sessionEntity,true);
+
             if (auction.CurrentWinner is null)
             {
                 if (offer < auction.CurrentOffer) return false;
                 auction.MaxOffer = offer;
                 auction.WinnerId = bidder.Id;
                 auction.WinnerSiteId = bidder.SiteId;
-                auctionManager.SaveOnDb(auction,true);
+                _auctionManager.SaveOnDb(auction,true);
                 return true;
             }
 
@@ -87,31 +91,30 @@ namespace MyImplementation.ConcreteClasses
             {
                 if (offer <= auction.MaxOffer + auction.Site.MinimumBidIncrement) return false;
                 auction.MaxOffer = offer;
-                auctionManager.SaveOnDb(auction, true);
+                _auctionManager.SaveOnDb(auction, true);
                 return true;
             }
 
             if (offer < auction.CurrentOffer + auction.Site.MinimumBidIncrement) return false;
             if (offer > auction.MaxOffer)
             {
-                var userManager = new UserManager(_connectionString,_mySite);
-                var userEntity = userManager.SearchEntity(auction.WinnerId);
+                var userEntity = _userManager.SearchEntity(auction.WinnerId);
                 userEntity.WinnerAuctionId = Id;
-                userManager.SaveOnDb(userEntity,true);
+                _userManager.SaveOnDb(userEntity,true);
                 auction.CurrentWinner.WinnerAuctionId = Id;
-                var auction1 = auctionManager.SearchEntity(Id);
+                var auction1 = _auctionManager.SearchEntity(Id);
                 auction1.CurrentOffer = Math.Min(offer, auction.MaxOffer + auction.Site.MinimumBidIncrement);
                 auction1.MaxOffer = offer;
                 auction1.WinnerId = bidder.Id;
                 auction1.WinnerSiteId = bidder.SiteId;
-                auctionManager.SaveOnDb(auction1, true);
+                _auctionManager.SaveOnDb(auction1, true);
                 return true;
             }
 
             if (auction.MaxOffer > offer)
             {
                 auction.CurrentOffer = Math.Min(auction.MaxOffer, offer + auction.Site.MinimumBidIncrement);
-                auctionManager.SaveOnDb(auction, true);
+                _auctionManager.SaveOnDb(auction, true);
                 return true;
             }
 

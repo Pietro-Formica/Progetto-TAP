@@ -26,14 +26,8 @@ namespace MyImplementation
             using (var context = new MyDBdContext(_connectionString))
             {
                 var siteEntity = context.SiteEntities.Find(key);
-
-                if (siteEntity is null)
-                {
-                    throw new InexistentNameException(name: key);
-                }
-      
                 return siteEntity;
-            }
+            }            
         }
         public IEnumerable<SiteEntity> SearchAllEntities()
         {
@@ -45,7 +39,13 @@ namespace MyImplementation
         }
         public void DeleteEntity(SiteEntity entity)
         {
-            throw new NotImplementedException();
+            using (var contextDb = new MyDBdContext(_connectionString))
+            {
+                contextDb.SiteEntities.Attach(entity);
+                contextDb.SiteEntities.Remove(entity);
+                contextDb.SaveChanges();
+
+            }
         }
         public void SaveOnDb(SiteEntity entity, bool upDate = false)
         {

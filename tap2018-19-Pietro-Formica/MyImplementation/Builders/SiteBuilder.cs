@@ -29,9 +29,9 @@ namespace MyImplementation.Builders
             AlarmClock = alarmClock;
             return this;
         }
-        public SiteBuilder SetEntity(IManager<SiteEntity,string> manager, string nameEntity)
+        public SiteBuilder SetEntity(SiteEntity siteEntity)
         {
-            SiteEntity = manager.SearchEntity(nameEntity);
+            SiteEntity = siteEntity;
             return this;
         }
         private SiteBuilder()
@@ -49,12 +49,10 @@ namespace MyImplementation.Builders
                 SiteEntity.MinimumBidIncrement, ConnectionString, AlarmClock);
             return site;
         }
-        public IEnumerable<string> BuildAll(IManager<SiteEntity,string> manager)
+        public IEnumerable<string> BuildAll(IEnumerable<SiteEntity> enumerable)
         {
-            //var enumerable = siteEntities.ToList();
-             var siteList = manager.SearchAllEntities();
-             var siteEntities = siteList.ToList();
-             if (siteEntities.Any()) yield break;
+             var siteEntities = enumerable.ToList();
+             if (siteEntities.Count == 0) yield break;
             foreach (var siteEntity in siteEntities)
             {
                 yield return siteEntity.Id;

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using MyImplementation.ConcreteClasses;
-using MyImplementation.Extensions;
 using MyImplementation.MyDatabase.DataEntities;
 using MyImplementation.ValidateArguments;
 using TAP2018_19.AlarmClock.Interfaces;
@@ -24,10 +23,9 @@ namespace MyImplementation.Builders
 
         public static SessionBuilder NewSessionBuilder() => new SessionBuilder();
 
-        public SessionBuilder SetSessionEntity(IManager<SessionEntity,string> manager, string key)
+        public SessionBuilder SetSessionEntity(SessionEntity sessionEntity)
         {
-            var session = manager.SearchEntity(key);
-            SessionEntity = session;
+            SessionEntity = sessionEntity;
             return this;
         }
 
@@ -44,11 +42,8 @@ namespace MyImplementation.Builders
             return this;
         }
 
-        public Session Build(SessionEntity sessionEntity = null)
-        {
-            if (sessionEntity != null)
-                SessionEntity = sessionEntity;
-            
+        public Session Build()
+        {            
             if(SessionEntity is null) throw new ArgumentNullException();
             if(ConnectionString is null) throw new ArgumentNullException();
             if(AlarmClock is null) throw new ArgumentNullException();

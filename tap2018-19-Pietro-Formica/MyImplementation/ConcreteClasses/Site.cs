@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MyImplementation.Builders;
-using MyImplementation.Extensions;
+using MyImplementation.MyDatabase.DataEntities;
 using MyImplementation.ValidateArguments;
 using TAP2018_19.AlarmClock.Interfaces;
 using TAP2018_19.AuctionSite.Interfaces;
@@ -14,7 +14,11 @@ namespace MyImplementation.ConcreteClasses
          private const int TimeToCleanup = 5;
          private readonly string _connectionString;
          private readonly IAlarmClock _alarmClock;
-       
+         private readonly IManager<UserEntity, string> _userManager;
+         private readonly IManager<SessionEntity, string> _sessionManager;
+         private readonly IManager<AuctionEntity,int> _auctionManager;
+         private readonly IManager<SiteEntity, string> _siteManager;
+
          public Site(string name, int timezone, int sessionExpirationInSeconds, double minimumBidIncrement, string connectionString, IAlarmClock alarmClock)
          {
              Name = name;
@@ -25,14 +29,14 @@ namespace MyImplementation.ConcreteClasses
              _alarmClock = alarmClock;
              var tick = _alarmClock.InstantiateAlarm(TimeToCleanup * 60 * 1000);
              tick.RingingEvent += CleanupSessions;
+             _userManager = new UserManager(connectionString,name);
+             _sessionManager = new SessionManager(connectionString, name);
+             _auctionManager = new AuctionManager(connectionString, name);
+             _siteManager = new SiteFactoryManager(connectionString);
         }
          public IEnumerable<IUser> GetUsers()
          {
-/*             var builder = UserBuilder.NewUserBuilder().SetAlarmClock(_alarmClock).SetConnectionString(_connectionString);
-             var listUsers = builder.GetUsers(Name);
-             return builder.BuildAll(listUsers);*/
-             var userManager = new UserManager(_connectionString, Name);
-             var users = userManager.SearchAllEntities();
+             var users = _userManager.SearchAllEntities();
              var builder = UserBuilder.NewUserBuilder()
                  .SetAlarmClock(_alarmClock)
                  .SetConnectionString(_connectionString)
@@ -45,8 +49,7 @@ namespace MyImplementation.ConcreteClasses
          }
          public IEnumerable<ISession> GetSessions()
         {
-            var sessionManager = new SessionManager(_connectionString,Name);
-            var sessions = sessionManager.SearchAllEntities();
+            var sessions = _sessionManager.SearchAllEntities();
 
             return SessionBuilder.NewSessionBuilder()
                 .SetAlarmClock(_alarmClock)
@@ -56,8 +59,7 @@ namespace MyImplementation.ConcreteClasses
 
         public IEnumerable<IAuction> GetAuctions(bool onlyNotEnded)
         {
-            var auctionManager = new AuctionManager(_connectionString, Name);
-            var listAuctionEntities = auctionManager.SearchAllEntities();
+            var listAuctionEntities = _auctionManager.SearchAllEntities();
             if (onlyNotEnded is false)
             {
                 return AuctionBuilder.NewAuctionBuilder()
@@ -75,41 +77,10 @@ namespace MyImplementation.ConcreteClasses
         }
 
         public ISession Login(string username, string password)
-        {
-           // Control.CheckName(DomainConstraints.MaxUserName, DomainConstraints.MinUserName,username);
+        { 
             Control.CheckPassword(password);
-/*            var session = SessionBuilder.NewSessionBuilder().SetConnectionString(_connectionString).SearchEntity(Name,null,username, password);
-            if (session is null)
-                return null;
-            if (session.SessionEntity is null)
-            {
-                var sessionEntity = EntitySessionBuilder.NewBuilder()
-                    .Id(username)
-                    .SiteName(Name)
-                    .ValidUntil(_alarmClock.Now.AddSeconds(SessionExpirationInSeconds))
-                    .EntityUser(username, password, Name, _connectionString)
-                    .Build();
 
-                sessionEntity.SaveEntityOnDb(_connectionString);
-                return session.SetAlarmClock(_alarmClock).SetSessionEntity(sessionEntity)
-                    .Build();
-
-            }
-            if (DateTime.Compare(_alarmClock.Now, session.SessionEntity.ValidUntil) < 0)
-            {
-                return session.SetAlarmClock(_alarmClock).Build();
-
-            }
-            else
-            {
-
-             
-
-
-
-            }*/
-            var userManager = new UserManager(_connectionString,Name);
-            var userEntity = userManager.SearchEntity(username);
+            var userEntity = _userManager.SearchEntity(username);
             if (userEntity is null || !Control.CompareHashPassword(Control.HashPassword(password),userEntity.Password)) return null;
             if (userEntity.Session is null)
             {
@@ -118,23 +89,25 @@ namespace MyImplementation.ConcreteClasses
                     .SiteName(Name)
                     .ValidUntil(_alarmClock.Now.AddSeconds(SessionExpirationInSeconds))
                     .Build();
-                sessionEntity.SaveEntityOnDb(_connectionString);
-                    
 
+                _sessionManager.SaveOnDb(sessionEntity);
+                 
                 return SessionBuilder.NewSessionBuilder()
                     .SetAlarmClock(_alarmClock)
                     .SetConnectionString(_connectionString)
-                    .Build(sessionEntity);
+                    .SetSessionEntity(sessionEntity)
+                    .Build();
             }
 
             userEntity.Session.ValidUntil = _alarmClock.Now.AddSeconds(SessionExpirationInSeconds);
-            var sessionManager = new SessionManager(_connectionString,Name);
-            sessionManager.SaveOnDb(userEntity.Session,true);
+
+            _sessionManager.SaveOnDb(userEntity.Session,true);
 
             return SessionBuilder.NewSessionBuilder()
                 .SetAlarmClock(_alarmClock)
                 .SetConnectionString(_connectionString)
-                .Build(userEntity.Session);
+                .SetSessionEntity(userEntity.Session)
+                .Build();
 
 
         }
@@ -142,39 +115,42 @@ namespace MyImplementation.ConcreteClasses
           
         public ISession GetSession(string sessionId)
         {
-            var sessionManager = new SessionManager(_connectionString, Name);
-            var sessionEntity = sessionManager.SearchEntity(sessionId);
+            var sessionEntity = _sessionManager.SearchEntity(sessionId);
             if (sessionEntity is null || !Session.DataValid(_alarmClock,sessionEntity)) return null;
             return SessionBuilder.NewSessionBuilder()
                 .SetConnectionString(_connectionString)
                 .SetAlarmClock(_alarmClock)
-                .Build(sessionEntity);
+                .SetSessionEntity(sessionEntity)
+                .Build();
 
         }
 
         public void CreateUser(string username, string password)
         {
-            EntityUserBuilder.NewBuilder(username)
+            var userEntity = EntityUserBuilder.NewBuilder(username)
                 .Password(password)
                 .SiteName(Name)
-                .Build()
-                .SaveEntityOnDb(_connectionString);                     
+                .Build();
+
+            _userManager.SaveOnDb(userEntity);
+
         }
 
         public void Delete()
         {
-            SiteBuilder.NewSiteBuilder().SetConnectionString(_connectionString).DestroyEntity(Name);
+            var siteEntity = _siteManager.SearchEntity(Name) ?? throw new InvalidOperationException();
+            _siteManager.DeleteEntity(siteEntity);
         }
 
         public void CleanupSessions()
         {
-            var sessionManager = new SessionManager(_connectionString, Name);
-            var sessionList = sessionManager.SearchAllEntities().ToList();
+
+            var sessionList = _sessionManager.SearchAllEntities().ToList();
             sessionList.ForEach(session =>
             {
                 if (!Session.DataValid(_alarmClock, session))
                 {
-                    sessionManager.DeleteEntity(session);
+                    _sessionManager.DeleteEntity(session);
                 }
             });
         }

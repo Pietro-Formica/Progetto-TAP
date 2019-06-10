@@ -90,12 +90,6 @@
     <Compile Include="ConcreteClasses\SiteFactory.cs" />
     <Compile Include="ConcreteClasses\User.cs" />
     <Compile Include="Builders\EntitySiteBuilder.cs" />
-    <Compile Include="Exceptions\DbInexistentNameException.cs" />
-    <Compile Include="Exceptions\DbInvalidOperationException.cs" />
-    <Compile Include="Exceptions\Interface\IExceptionDb.cs" />
-    <Compile Include="Extensions\SessionBuilderExtension.cs" />
-    <Compile Include="Extensions\SiteBuilderExtension.cs" />
-    <Compile Include="Extensions\UserBuilderExtension.cs" />
     <Compile Include="IBuilder.cs" />
     <Compile Include="IManager.cs" />
     <Compile Include="MyDatabase\DataEntities\AuctionEntity.cs" />
