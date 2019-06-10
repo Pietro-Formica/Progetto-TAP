@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Configuration;
 using System.Data.Entity;
+using System.Security.Cryptography;
+using System.Text;
 using TAP2018_19.AlarmClock.Interfaces;
 using TAP2018_19.AuctionSite.Interfaces;
 using ArgumentOutOfRangeException = System.ArgumentOutOfRangeException;
@@ -58,6 +60,27 @@ namespace MyImplementation.ValidateArguments
         public static void CheckNegativeOffer(double offer)
         {
             if(offer < 0) throw new ArgumentOutOfRangeException();
+        }
+        public static string HashPassword(string password)
+        {
+            var sha256Hash = SHA256.Create();
+
+            var data = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
+            var sBuilder = new StringBuilder();
+
+            foreach (var t in data)
+            {
+                sBuilder.Append(t.ToString("x2"));
+            }
+
+            return sBuilder.ToString();
+        }
+
+        public static bool CompareHashPassword(string userPassword, string databasePassword)
+        {
+            StringComparer comparer = StringComparer.OrdinalIgnoreCase;
+
+            return comparer.Compare(userPassword, databasePassword) == 0;
         }
     }
 

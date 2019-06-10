@@ -110,7 +110,7 @@ namespace MyImplementation.ConcreteClasses
             }*/
             var userManager = new UserManager(_connectionString,Name);
             var userEntity = userManager.SearchEntity(username);
-            if (userEntity is null || !userEntity.Password.Equals(password)) return null;
+            if (userEntity is null || !Control.CompareHashPassword(Control.HashPassword(password),userEntity.Password)) return null;
             if (userEntity.Session is null)
             {
                 var sessionEntity = EntitySessionBuilder.NewBuilder()
@@ -178,6 +178,8 @@ namespace MyImplementation.ConcreteClasses
                 }
             });
         }
+
+        
         public bool Equals(Site other)
         {
             if (ReferenceEquals(null, other)) return false;

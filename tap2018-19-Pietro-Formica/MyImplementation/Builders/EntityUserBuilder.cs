@@ -31,7 +31,7 @@ namespace MyImplementation.Builders
              var userEntity = new UserEntity
             {
                 Id = _id,
-                Password = _password,
+                Password = Control.HashPassword(_password),
                 SiteId = _siteName
             };
             return userEntity;
